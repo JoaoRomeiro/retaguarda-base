@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Acesso aos tipos do ASP.NET Core (HttpContext, RequestDelegate, IApplicationBuilder)
+         para os middlewares de infraestrutura web compartilhados entre Web e Api.
+         Isolar aqui mantém Retaguarda.Shared agnóstico de framework web. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Contratos comuns (ICurrentUserService) implementados aqui sobre HttpContext. -->
+    <ProjectReference Include="..\Retaguarda.Shared\Retaguarda.Shared.csproj" />
+    <!-- Health check de readiness usa o ApplicationDbContext (Postgres). Compartilhado por Web e Api. -->
+    <ProjectReference Include="..\Retaguarda.Data\Retaguarda.Data.csproj" />
+  </ItemGroup>
+
+</Project>

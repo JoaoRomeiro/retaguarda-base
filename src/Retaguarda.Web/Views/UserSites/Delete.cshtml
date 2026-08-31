@@ -1,0 +1,35 @@
+@model Retaguarda.Web.Models.Users.UserSiteDeleteViewModel
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["delete_confirm_title"].Value;
+    var userSearch = ViewData["UserSearch"] as string;
+    var userPage = ViewData["UserPage"];
+    var search = ViewData["ListSearch"] as string;
+    var listPage = ViewData["ListPage"];
+}
+
+<div class="page-header">
+    <h1>@L["delete_confirm_title"]</h1>
+</div>
+
+<form asp-action="Delete" method="post" data-disable-on-submit>
+    <input type="hidden" name="userId" value="@Model.UserId" />
+    <input type="hidden" name="siteId" value="@Model.SiteId" />
+    <input type="hidden" name="userSearch" value="@userSearch" />
+    <input type="hidden" name="userPage" value="@userPage" />
+    <input type="hidden" name="search" value="@search" />
+    <input type="hidden" name="page" value="@listPage" />
+
+    <div class="card card-accent mb-4">
+        <div class="card-body">
+            <p class="mb-0">@string.Format(L["usersites_delete_confirm"].Value, Model.SiteName, Model.SiteCode)</p>
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-danger" data-loading-text="@L["deleting"]">@L["usersite_remove"]</button>
+            <a asp-action="Index" asp-route-userId="@Model.UserId" asp-route-userSearch="@userSearch"
+               asp-route-userPage="@userPage" asp-route-search="@search" asp-route-page="@listPage"
+               class="btn btn-secondary">@L["cancel"]</a>
+        </div>
+    </div>
+</form>

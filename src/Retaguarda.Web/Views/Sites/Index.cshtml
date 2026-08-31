@@ -1,0 +1,126 @@
+@model Retaguarda.Web.Models.Sites.SiteIndexViewModel
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["sites_title"].Value;
+    var sites = Model.Sites;
+}
+
+<div class="page-header">
+    <h1>@L["sites_title"]</h1>
+</div>
+
+@if (TempData["StatusMessage"] is string status)
+{
+    <div class="alert alert-success" role="alert">@status</div>
+}
+
+<div class="card card-accent mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-end gap-2 mb-3">
+            @* Voltar: por ora aponta para a home; cada tela definirá seu próprio destino. *@
+            <a asp-controller="Home" asp-action="Index" class="btn btn-sm btn-primary">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i> @L["back"]
+            </a>
+            @* Exportação: mesma busca da tela; o download não navega a página. *@
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                        aria-expanded="false" @(sites.Items.Count == 0 ? "disabled" : null)>
+                    <i class="bi bi-download" aria-hidden="true"></i> @L["export"]
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" asp-action="Export" asp-route-format="excel"
+                           asp-route-search="@Model.Search">@L["export_excel"]</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" asp-action="Export" asp-route-format="pdf"
+                           asp-route-search="@Model.Search">@L["export_pdf"]</a>
+                    </li>
+                </ul>
+            </div>
+            <a asp-action="Create" asp-route-search="@Model.Search" asp-route-page="@sites.Page"
+               class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i> @L["new"]
+            </a>
+        </div>
+
+        <form asp-action="Index" method="get" class="mb-3" role="search">
+            <div class="input-group">
+                <input type="search" name="search" value="@Model.Search" class="form-control"
+                       placeholder="@L["sites_search_placeholder"]" aria-label="@L["search"]" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                </button>
+                @if (!string.IsNullOrWhiteSpace(Model.Search))
+                {
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i> @L["clear_search"]
+                    </a>
+                }
+            </div>
+        </form>
+
+        @if (sites.Items.Count == 0)
+        {
+            <p class="text-muted mb-0">@L["sites_empty"]</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>@L["site_field_code"]</th>
+                            <th>@L["site_field_name"]</th>
+                            <th>@L["site_field_active"]</th>
+                            <th class="text-end">@L["actions"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var site in sites.Items)
+                        {
+                            <tr>
+                                <td>@site.Code</td>
+                                <td class="cell-truncate" title="@site.Name">@site.Name</td>
+                                <td>
+                                    @if (site.IsActive)
+                                    {
+                                        <span class="badge text-bg-success">@L["active_yes"]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-secondary">@L["active_no"]</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Edit" asp-route-id="@site.Id" asp-route-search="@Model.Search"
+                                       asp-route-page="@sites.Page" class="btn btn-sm btn-primary">@L["edit"]</a>
+                                    <a asp-action="Delete" asp-route-id="@site.Id" asp-route-search="@Model.Search"
+                                       asp-route-page="@sites.Page" class="btn btn-sm btn-danger">@L["delete"]</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    @* Paginação no rodapé do card. Extrair para ViewComponent ao chegar na 2ª tela (§15.4 / item 2.10). *@
+    @if (sites.TotalPages > 1)
+    {
+        <div class="card-footer">
+            <nav class="d-flex justify-content-between align-items-center" aria-label="@L["pagination_label"]">
+                <span class="text-muted small">@string.Format(L["pagination_info"].Value, sites.Page,
+                                                                                                                                                                                                    sites.TotalPages)</span>
+                    <div class="btn-group">
+                        <a class="btn btn-outline-secondary btn-sm @(sites.Page <= 1 ? "disabled" : null)" asp-action="Index"
+                           asp-route-search="@Model.Search" asp-route-page="@(sites.Page - 1)">@L["pagination_prev"]</a>
+                        <a class="btn btn-outline-secondary btn-sm @(sites.Page >= sites.TotalPages ? "disabled" : null)"
+                           asp-action="Index" asp-route-search="@Model.Search"
+                           asp-route-page="@(sites.Page + 1)">@L["pagination_next"]</a>
+                    </div>
+                </nav>
+            </div>
+        }
+    </div>

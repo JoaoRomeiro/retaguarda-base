@@ -1,0 +1,57 @@
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["home_title"].Value;
+    var siteName = User.FindFirst(RetaguardaClaims.SiteName)?.Value;
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<div class="page-header">
+    <h1>@string.Format(L["home_greeting"].Value, User.Identity?.Name)</h1>
+</div>
+
+<div class="card card-accent mb-4">
+    <div class="card-body">
+        @if (!string.IsNullOrWhiteSpace(siteName))
+        {
+            <p class="mb-2">@string.Format(L["home_active_site"].Value, siteName)</p>
+        }
+        <p class="text-muted mb-0">@L["home_intro"]</p>
+    </div>
+</div>
+
+@* Atalhos dos cadastros — só para quem os administra, espelhando a sidebar. *@
+@if (isAdmin)
+{
+    <div class="row g-3">
+        <div class="col-md-4">
+            <a class="card card-accent h-100 text-decoration-none" asp-controller="Roles" asp-action="Index">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">
+                        <i class="bi bi-person-badge" aria-hidden="true"></i> @L["nav_roles"]
+                    </h2>
+                    <p class="text-muted small mb-0">@L["home_card_roles"]</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="card card-accent h-100 text-decoration-none" asp-controller="Users" asp-action="Index">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">
+                        <i class="bi bi-people" aria-hidden="true"></i> @L["nav_users"]
+                    </h2>
+                    <p class="text-muted small mb-0">@L["home_card_users"]</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="card card-accent h-100 text-decoration-none" asp-controller="Sites" asp-action="Index">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">
+                        <i class="bi bi-buildings" aria-hidden="true"></i> @L["nav_sites"]
+                    </h2>
+                    <p class="text-muted small mb-0">@L["home_card_sites"]</p>
+                </div>
+            </a>
+        </div>
+    </div>
+}

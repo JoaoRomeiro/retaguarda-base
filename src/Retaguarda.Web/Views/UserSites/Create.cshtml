@@ -1,0 +1,64 @@
+@using Retaguarda.Business.Users.Dtos
+@model Retaguarda.Business.Users.Dtos.AssociateSiteRequest
+@inject IStringLocalizer<SharedResources> L
+@{
+    var userName = ViewData["UserName"] as string;
+    ViewData["Title"] = string.Format(L["usersites_title"].Value, userName);
+    var available = ViewData["AvailableSites"] as IReadOnlyList<AvailableSiteDto> ?? [];
+    var userSearch = ViewData["UserSearch"] as string;
+    var userPage = ViewData["UserPage"];
+    var search = ViewData["ListSearch"] as string;
+    var listPage = ViewData["ListPage"];
+}
+
+<div class="page-header">
+    <h1>@L["usersites_new"]</h1>
+</div>
+
+<form asp-action="Create" method="post" data-disable-on-submit>
+    <input type="hidden" asp-for="UserId" />
+    <input type="hidden" name="userSearch" value="@userSearch" />
+    <input type="hidden" name="userPage" value="@userPage" />
+    <input type="hidden" name="search" value="@search" />
+    <input type="hidden" name="page" value="@listPage" />
+
+    <div class="card card-accent mb-4">
+        <div class="card-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            }
+
+            @if (available.Count == 0)
+            {
+                <p class="text-muted mb-0">@L["usersite_no_available"]</p>
+            }
+            else
+            {
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label asp-for="SiteId" class="form-label"><strong>@L["usersite_field_site"]</strong></label>
+                        <select asp-for="SiteId" class="form-select" autofocus>
+                            <option value="0">@L["usersite_site_select"]</option>
+                            @foreach (var site in available)
+                            {
+                                <option value="@site.Id">@site.Code — @site.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="SiteId" class="text-danger small"></span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="card-footer">
+            @if (available.Count > 0)
+            {
+                <button type="submit" class="btn btn-primary" data-loading-text="@L["saving"]">@L["save"]</button>
+            }
+            <a asp-action="Index" asp-route-userId="@Model.UserId" asp-route-userSearch="@userSearch"
+               asp-route-userPage="@userPage" asp-route-search="@search" asp-route-page="@listPage"
+               class="btn btn-secondary">@L["cancel"]</a>
+        </div>
+    </div>
+</form>

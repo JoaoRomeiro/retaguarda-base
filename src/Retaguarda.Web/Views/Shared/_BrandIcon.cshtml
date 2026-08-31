@@ -1,0 +1,13 @@
+@inject IStringLocalizer<SharedResources> L
+@*
+    Ícone da marca (cubo isométrico). Fonte única do logo no web.
+    Tinge-se pela cor do elemento pai (fill="currentColor"): no login herda
+    var(--color-primary); na sidebar (header escuro) herda o branco do .app-brand.
+    Tamanho via CSS (.brand-cube em theme.css).
+*@
+<svg class="brand-cube" viewBox="0 0 48 48" fill="currentColor" role="img" aria-label="@L["app_title"]">
+    <title>@L["app_title"]</title>
+    <path d="M24 7 41 16 24 25 7 16Z" />
+    <path d="M7 16 24 25 24 43 7 34Z" opacity=".62" />
+    <path d="M41 16 24 25 24 43 41 34Z" opacity=".82" />
+</svg>

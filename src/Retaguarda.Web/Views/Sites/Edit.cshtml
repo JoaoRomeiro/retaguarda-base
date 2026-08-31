@@ -1,0 +1,75 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Retaguarda.Business.Sites
+@model Retaguarda.Business.Sites.Dtos.UpdateSiteRequest
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["sites_edit"].Value;
+    var timeZoneItems = BrazilTimeZones.All
+        .Select(tz => new SelectListItem(L[tz.ResourceKey].Value, tz.Id))
+        .ToList();
+}
+
+<div class="page-header">
+    <h1>@L["sites_edit"]</h1>
+</div>
+
+<form asp-action="Edit" method="post" data-disable-on-submit>
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" name="search" value="@ViewData["ListSearch"]" />
+    <input type="hidden" name="page" value="@ViewData["ListPage"]" />
+
+    <div class="card card-accent mb-4">
+        <div class="card-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label asp-for="Code" class="form-label">
+                        <strong>@L["site_field_code"]</strong>
+                    </label>
+                    <input asp-for="Code" class="form-control" autofocus />
+                    <span asp-validation-for="Code" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label">
+                        <strong>@L["site_field_name"]</strong>
+                    </label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="TimeZone" class="form-label">
+                        <strong>@L["site_field_timezone"]</strong>
+                        <partial name="_FieldHelp" model="@L["site_field_timezone_hint"].Value" />
+                    </label>
+                    <select asp-for="TimeZone" asp-items="timeZoneItems" class="form-select">
+                        <option value="">@L["site_timezone_select"]</option>
+                    </select>
+                    <span asp-validation-for="TimeZone" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="IsActive" class="form-label">
+                        <strong>@L["site_field_active"]</strong>
+                        <partial name="_FieldHelp" model="@L["site_field_active_hint"].Value" />
+                    </label>
+                    @* name/id explícitos + selected condicional: binding de bool em select sem ambiguidade do asp-for.
+                    *@
+                    <select name="IsActive" id="IsActive" class="form-select">
+                        <option value="true" selected="@(Model.IsActive ? "selected" : null)">@L["active_yes"]</option>
+                        <option value="false" selected="@(!Model.IsActive ? "selected" : null)">@L["active_no"]</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary" data-loading-text="@L["saving"]">@L["save"]</button>
+            <a asp-action="Index" asp-route-search="@ViewData["ListSearch"]" asp-route-page="@ViewData["ListPage"]"
+               class="btn btn-secondary">@L["cancel"]</a>
+        </div>
+    </div>
+</form>

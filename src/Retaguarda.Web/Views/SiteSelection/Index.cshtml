@@ -1,0 +1,46 @@
+@model Retaguarda.Web.Models.SiteSelection.SiteSelectionViewModel
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["site_selection_title"].Value;
+    Layout = "_LayoutAuth";
+}
+
+<h1 class="h5 mb-3 text-center">@L["site_selection_title"]</h1>
+
+@if (Model.Sites.Count == 0)
+{
+    <p class="text-muted text-center">@L["site_selection_none"]</p>
+}
+else
+{
+    <p class="text-muted small text-center mb-4">@L["site_selection_intro"]</p>
+
+    <form asp-controller="SiteSelection" asp-action="Select" method="post" data-disable-on-submit>
+        <input type="hidden" asp-for="ReturnUrl" />
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        }
+
+        <div class="mb-4">
+			<label asp-for="SiteId" class="form-label"><strong>@L["site_selection_field"]</strong></label>
+            <select asp-for="SiteId" class="form-select" autofocus>
+                <option value="0">@L["site_selection_placeholder"]</option>
+                @foreach (var site in Model.Sites)
+                {
+                    <option value="@site.Id">@site.Code: @site.Name</option>
+                }
+            </select>
+            <span asp-validation-for="SiteId" class="text-danger small"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100" data-loading-text="@L["site_selection_submitting"]">
+            @L["site_selection_submit"]
+        </button>
+    </form>
+}
+
+<form asp-controller="Account" asp-action="Logout" method="post" class="text-center mt-3">
+    <button type="submit" class="btn btn-link btn-sm">@L["site_selection_logout"]</button>
+</form>

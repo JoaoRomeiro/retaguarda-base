@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Retaguarda.Data\Retaguarda.Data.csproj" />
+    <ProjectReference Include="..\Retaguarda.Shared\Retaguarda.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Validação (Apache 2.0) e mapeamento DTO↔entidade (MIT) — ver §3 do doc. -->
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="Mapster" Version="10.0.7" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

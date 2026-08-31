@@ -1,0 +1,50 @@
+@model Retaguarda.Business.Roles.Dtos.UpdateRoleRequest
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["roles_edit"].Value;
+    // Papel interno: nome somente-leitura (o código e [Authorize] dependem do nome).
+    var isSystem = ViewData["IsSystem"] is true;
+}
+
+<div class="page-header">
+    <h1>@L["roles_edit"]</h1>
+</div>
+
+<form asp-action="Edit" method="post" data-disable-on-submit>
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" name="search" value="@ViewData["ListSearch"]" />
+    <input type="hidden" name="page" value="@ViewData["ListPage"]" />
+
+    <div class="card card-accent mb-4">
+        <div class="card-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label"><strong>@L["role_field_name"]</strong></label>
+                    @* readonly (não disabled) para que o valor continue sendo enviado no POST. *@
+                    <input asp-for="Name" class="form-control" autofocus readonly="@(isSystem ? "readonly" : null)" />
+                    @if (isSystem)
+                    {
+                        <span class="form-text">@L["role_field_name_system_hint"]</span>
+                    }
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label"><strong>@L["role_field_description"]</strong></label>
+                    <textarea asp-for="Description" class="form-control" rows="5" maxlength="200"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary" data-loading-text="@L["saving"]">@L["save"]</button>
+            <a asp-action="Index" asp-route-search="@ViewData["ListSearch"]" asp-route-page="@ViewData["ListPage"]"
+               class="btn btn-secondary">@L["cancel"]</a>
+        </div>
+    </div>
+</form>

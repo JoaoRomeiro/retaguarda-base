@@ -1,0 +1,53 @@
+# ---------- build stage ----------
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# Padrões centralizados de build (Nullable, ImplicitUsings, analyzers, warnings-as-errors).
+# Precisa ser copiado para o MSBuild aplicá-los dentro do container, igual ao build local/CI.
+# O .editorconfig vai junto: define severidades de analyzer e marca as Migrations como
+# código gerado (generated_code) — sem ele, regras como CA1861 quebram o build aqui.
+COPY Directory.Build.props .editorconfig ./
+
+# Cadeia de referências: Api → AspNetCore, Business, Data → Shared (Business → Data → Shared).
+# Copiar todos os csproj antes do restore e, depois, o código-fonte dos projetos.
+COPY ["src/Retaguarda.Api/Retaguarda.Api.csproj", "src/Retaguarda.Api/"]
+COPY ["src/Retaguarda.AspNetCore/Retaguarda.AspNetCore.csproj", "src/Retaguarda.AspNetCore/"]
+COPY ["src/Retaguarda.Business/Retaguarda.Business.csproj", "src/Retaguarda.Business/"]
+COPY ["src/Retaguarda.Data/Retaguarda.Data.csproj", "src/Retaguarda.Data/"]
+COPY ["src/Retaguarda.Shared/Retaguarda.Shared.csproj", "src/Retaguarda.Shared/"]
+RUN dotnet restore "src/Retaguarda.Api/Retaguarda.Api.csproj"
+
+COPY src/Retaguarda.Api/ src/Retaguarda.Api/
+COPY src/Retaguarda.AspNetCore/ src/Retaguarda.AspNetCore/
+COPY src/Retaguarda.Business/ src/Retaguarda.Business/
+COPY src/Retaguarda.Data/ src/Retaguarda.Data/
+COPY src/Retaguarda.Shared/ src/Retaguarda.Shared/
+RUN dotnet publish "src/Retaguarda.Api/Retaguarda.Api.csproj" \
+    -c Release \
+    --no-restore \
+    -o /app/publish
+
+# ---------- runtime stage ----------
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+
+# curl para o HEALTHCHECK do container (a imagem aspnet não o inclui).
+# Instalado como root, antes de baixar privilégios para o user 'app'.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /app/publish .
+
+# Cria a pasta de logs e ajusta dono para o user 'app' (UID 1654, já existe na imagem aspnet).
+RUN mkdir -p /app/logs && chown -R app:app /app/logs
+
+USER app
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+
+# Health check do container: consulta o próprio endpoint /health.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl --fail http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["dotnet", "Retaguarda.Api.dll"]

@@ -1,0 +1,82 @@
+@using System.Globalization
+@inject IStringLocalizer<SharedResources> L
+@inject Retaguarda.Business.Sites.ISiteService SiteService
+@{
+    var activeSiteName = User.FindFirst(RetaguardaClaims.SiteName)?.Value;
+    var currentUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    if (string.IsNullOrWhiteSpace(activeSiteName))
+    {
+        var activeSiteIdRaw = User.FindFirst(RetaguardaClaims.SiteId)?.Value;
+        if (int.TryParse(activeSiteIdRaw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var activeSiteId))
+        {
+            activeSiteName = (await SiteService.GetByIdAsync(activeSiteId))?.Name;
+        }
+    }
+}
+<header class="app-topbar">
+    @* Recolhe/expande a sidebar no desktop (modo ícones); estado persiste via cookie. *@
+    <button type="button" class="btn btn-light d-none d-md-inline-flex" id="sidebarCollapse" aria-controls="appSidebar"
+            aria-label="@L["sidebar_collapse_toggle"]">
+        <i class="bi bi-list" aria-hidden="true"></i>
+    </button>
+
+    @* Abre/fecha a sidebar em telas pequenas (<md); o toggle vive em site.js. *@
+    <button type="button" class="btn btn-light d-md-none" id="sidebarToggle" aria-controls="appSidebar"
+            aria-expanded="false" aria-label="@L["nav_primary_aria"]">
+        <i class="bi bi-list" aria-hidden="true"></i>
+    </button>
+
+    @if (!string.IsNullOrWhiteSpace(activeSiteName))
+    {
+        <span class="app-active-site" title="@activeSiteName">@activeSiteName</span>
+    }
+
+    <div class="ms-auto d-flex align-items-center gap-3">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <div class="dropdown">
+                <button type="button"
+                        class="btn btn-light btn-sm app-user app-user-menu-toggle dropdown-toggle"
+                        id="userMenu"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="@L["user_menu_aria"]">
+                    <i class="bi bi-person-circle" aria-hidden="true"></i>
+                    <span class="d-none d-sm-inline">@User.Identity!.Name</span>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                    <li>
+                        <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                            <i class="bi bi-person" aria-hidden="true"></i>
+                            @L["nav_profile"]
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item"
+                           asp-controller="SiteSelection"
+                           asp-action="Index"
+                           asp-route-returnUrl="@currentUrl">
+							<i class="bi bi-buildings" aria-hidden="true"></i>
+                            @L["nav_change_site"]
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                        @* Logout via POST + antiforgery (token injetado pelo form tag helper). *@
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                @L["nav_logout"]
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        }
+        else
+        {
+            <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Login">@L["nav_login"]</a>
+        }
+    </div>
+</header>

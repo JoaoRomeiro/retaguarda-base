@@ -1,0 +1,52 @@
+# Build outputs
+**/bin/
+**/obj/
+
+# Logs gerados em runtime (Serilog grava em volume mapeado, não precisa entrar no contexto)
+**/logs/
+*.log
+
+# IDE/editor
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentação e configuração dev-only
+docs/
+*.md
+CLAUDE.md
+
+# Memória local do Claude Code
+.claude/
+
+# Test results
+TestResults/
+[Tt]est[Rr]esult*/
+
+# Variáveis de ambiente locais
+.env
+*.env
+
+# Docker (o próprio contexto não precisa de si mesmo)
+docker/
+**/Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Segredos (já estão no .gitignore, mas reforçando)
+appsettings.Production.json
+appsettings.*.Local.json
+
+# NuGet artifacts locais
+*.nupkg
+*.snupkg
+artifacts/

@@ -1,0 +1,3 @@
+/* Estilos scoped do _Layout intencionalmente vazios.
+   Toda a aparência (cores, shell, componentes) vive em wwwroot/css/theme.css via design tokens.
+   Manter este arquivo sem regras evita cores hardcoded competindo com o tema. */

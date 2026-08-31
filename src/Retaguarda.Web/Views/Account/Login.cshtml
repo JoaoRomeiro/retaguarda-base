@@ -1,0 +1,42 @@
+@model Retaguarda.Web.Models.Account.LoginViewModel
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["login_title"].Value;
+    Layout = "_LayoutAuth";
+}
+
+<h1 class="h5 mb-4 text-center">@L["login_title"]</h1>
+
+<form asp-controller="Account" asp-action="Login" method="post" data-disable-on-submit>
+    <input type="hidden" asp-for="ReturnUrl" />
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    }
+
+    <div class="mb-3">
+		<label asp-for="Email" class="form-label"><strong>@L["login_email_label"]</strong></label>
+        <input asp-for="Email" class="form-control" autocomplete="username" autofocus />
+        <span asp-validation-for="Email" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+		<label asp-for="Password" class="form-label"><strong>@L["login_password_label"]</strong></label>
+        <input asp-for="Password" class="form-control" autocomplete="current-password" />
+        <span asp-validation-for="Password" class="text-danger small"></span>
+    </div>
+
+    <div class="form-check mb-4">
+        <input asp-for="RememberMe" class="form-check-input" />
+        <label asp-for="RememberMe" class="form-check-label">@L["login_remember_me"]</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100" data-loading-text="@L["login_submitting"]">
+        @L["login_submit"]
+    </button>
+</form>
+
+<div class="text-center mt-3">
+    <a asp-controller="Account" asp-action="ForgotPassword" class="small">@L["forgot_password_link"]</a>
+</div>

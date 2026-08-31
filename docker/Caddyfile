@@ -1,0 +1,18 @@
+# Proxy reverso da POC. Cloudflare (SSL/TLS "Full (strict)") → Caddy (443) → containers.
+# Usa o CERTIFICADO DE ORIGEM da Cloudflare (montado em /certs); a diretiva `tls <cert> <key>`
+# desliga o Let's Encrypt automático do Caddy para estes hosts (ACME falharia atrás do proxy da CF).
+#
+# TROQUE os dois domínios abaixo pelos do projeto (o mesmo valor vai em WEB_ALLOWED_HOSTS e
+# API_ALLOWED_HOSTS no docker/.env). Ver docs/deploy.md.
+
+exemplo.com.br {
+    tls /certs/origin.pem /certs/origin-key.pem
+    encode gzip zstd
+    reverse_proxy web:8080
+}
+
+api.exemplo.com.br {
+    tls /certs/origin.pem /certs/origin-key.pem
+    encode gzip zstd
+    reverse_proxy api:8080
+}

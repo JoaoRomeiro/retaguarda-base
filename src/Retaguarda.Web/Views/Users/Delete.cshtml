@@ -1,0 +1,27 @@
+@model Retaguarda.Business.Users.Dtos.UserDto
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["delete_confirm_title"].Value;
+}
+
+<div class="page-header">
+    <h1>@L["delete_confirm_title"]</h1>
+</div>
+
+<form asp-action="Delete" method="post" data-disable-on-submit>
+    <input type="hidden" name="id" value="@Model.Id" />
+    <input type="hidden" name="search" value="@ViewData["ListSearch"]" />
+    <input type="hidden" name="page" value="@ViewData["ListPage"]" />
+
+    <div class="card card-accent mb-4">
+        <div class="card-body">
+            <p class="mb-0">@string.Format(L["users_delete_confirm"].Value, Model.FullName, Model.Email)</p>
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-danger" data-loading-text="@L["deleting"]">@L["delete"]</button>
+            <a asp-action="Index" asp-route-search="@ViewData["ListSearch"]" asp-route-page="@ViewData["ListPage"]"
+               class="btn btn-secondary">@L["cancel"]</a>
+        </div>
+    </div>
+</form>

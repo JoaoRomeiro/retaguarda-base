@@ -1,0 +1,35 @@
+<Project>
+
+  <!--
+    Propriedades aplicadas a TODOS os projetos da solution.
+    Documentação: https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory
+
+    Atenção: TargetFramework continua em cada .csproj (não centralizado aqui) —
+    permite divergência futura entre Web/Api (net10.0) e libs específicas.
+  -->
+
+  <PropertyGroup>
+    <!-- Linguagem C# moderna -->
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Disciplina de build -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Analyzers nativos do .NET (CA + IDE rules) -->
+    <AnalysisMode>Recommended</AnalysisMode>
+    <AnalysisLevel>latest</AnalysisLevel>
+
+    <!--
+      Supressões justificadas:
+      CA1716:        'Retaguarda.Shared' conflita com palavra reservada 'Shared' do VB.NET.
+                     Retaguarda é projeto C# puro — interop VB.NET fora de escopo.
+      CA1848/CA1873: LoggerMessage delegates (source-gen) são otimização para hot paths de
+                     alta frequência. O logging do projeto é esporádico (auth, startup, seed);
+                     o boilerplate não compensa. A MS não habilita essas regras no modo Default.
+    -->
+    <NoWarn>$(NoWarn);CA1716;CA1848;CA1873</NoWarn>
+  </PropertyGroup>
+
+</Project>

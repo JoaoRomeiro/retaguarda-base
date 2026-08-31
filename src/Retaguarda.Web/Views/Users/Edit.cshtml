@@ -1,0 +1,77 @@
+@using Retaguarda.Web.Models.Users
+@model Retaguarda.Business.Users.Dtos.UpdateUserRequest
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["users_edit"].Value;
+    var sites = ViewData["Sites"] as IReadOnlyList<SiteOption> ?? [];
+    var roles = ViewData["Roles"] as IReadOnlyList<string> ?? [];
+    var email = ViewData["Email"] as string;
+}
+
+<div class="page-header">
+    <h1>@L["users_edit"]</h1>
+</div>
+
+<form asp-action="Edit" method="post" data-disable-on-submit>
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" name="search" value="@ViewData["ListSearch"]" />
+    <input type="hidden" name="page" value="@ViewData["ListPage"]" />
+
+    <div class="card card-accent mb-4">
+        <div class="card-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FullName" class="form-label"><strong>@L["user_field_fullname"]</strong></label>
+                    <input asp-for="FullName" class="form-control" autofocus />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><strong>@L["user_field_email"]</strong></label>
+                    @* E-mail (login) é imutável: exibido somente-leitura, não é enviado no POST. *@
+                    <input class="form-control" value="@email" readonly />
+                    <span class="form-text">@L["user_email_readonly_hint"]</span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="RoleName" class="form-label"><strong>@L["user_field_role"]</strong></label>
+                    <select asp-for="RoleName" class="form-select">
+                        <option value="">@L["user_role_select"]</option>
+                        @foreach (var role in roles)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    </select>
+                    <span asp-validation-for="RoleName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DefaultSiteId" class="form-label"><strong>@L["user_field_default_site"]</strong></label>
+                    <select asp-for="DefaultSiteId" class="form-select">
+                        <option value="0">@L["user_default_site_select"]</option>
+                        @foreach (var site in sites)
+                        {
+                            <option value="@site.Id">@site.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="DefaultSiteId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="IsActive" class="form-label"><strong>@L["user_field_active"]</strong></label>
+                    <select name="IsActive" id="IsActive" class="form-select">
+                        <option value="true" selected="@(Model.IsActive ? "selected" : null)">@L["active_yes"]</option>
+                        <option value="false" selected="@(!Model.IsActive ? "selected" : null)">@L["active_no"]</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary" data-loading-text="@L["saving"]">@L["save"]</button>
+            <a asp-action="Index" asp-route-search="@ViewData["ListSearch"]" asp-route-page="@ViewData["ListPage"]"
+               class="btn btn-secondary">@L["cancel"]</a>
+        </div>
+    </div>
+</form>

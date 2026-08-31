@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Habilita 'dotnet user-secrets' nesta API (chave JWT e connection string em dev). -->
+    <UserSecretsId>62533689-2880-493b-8625-9ba84e2b4b5f</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+    <!-- Override transitivo: Microsoft.OpenApi 2.0.0 (puxada por AspNetCore.OpenApi) tem CVE high
+         (GHSA-v5pm-xwqc-g5wc). 2.7.5 e a primeira versao corrigida da linha 2.x. -->
+    <PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Infraestrutura web compartilhada (SecurityHeadersMiddleware, CurrentUserService etc.). -->
+    <ProjectReference Include="..\Retaguarda.AspNetCore\Retaguarda.AspNetCore.csproj" />
+    <!-- Casos de uso (autenticação) e acesso a dados (DbContext, Identity, repositórios). -->
+    <ProjectReference Include="..\Retaguarda.Business\Retaguarda.Business.csproj" />
+    <ProjectReference Include="..\Retaguarda.Data\Retaguarda.Data.csproj" />
+  </ItemGroup>
+
+</Project>

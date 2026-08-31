@@ -1,0 +1,634 @@
+/* ============================================================
+   Retaguarda — design tokens + app shell
+   Arquivo único de tema. Rebrand = editar só este arquivo.
+   Ver docs/padrao-ui.md §5 (Sistema de tema) e §6.
+   ============================================================ */
+
+:root {
+    /* --- Cores: marca ----------------------------------------- */
+    --color-primary: #2563eb;
+    /* azul sóbrio, alto contraste */
+    --color-primary-hover: #1d4ed8;
+    /* mesmo tom, 1 stop mais escuro */
+
+    /* --- Cores: superfícies e texto --------------------------- */
+    --color-surface: #ffffff;
+    /* cards, modais, dropdowns, topbar */
+    --color-background: #f1f5f9;
+    /* fundo geral (slate-100) — separa cards do fundo */
+    --color-text: #0f172a;
+    /* texto principal */
+    --color-text-muted: #64748b;
+    /* texto secundário, labels, placeholders */
+    --color-border: #94a3b8;
+    /* slate-400 — contraste ~3:1 c/ surface (WCAG 1.4.11); perfil dos usuários (operadores idosos em CD com luz irregular) exige bordas óbvias — ver docs/padrao-ui.md §6/§9 */
+    --color-border-subtle: #e2e8f0;
+    /* slate-200 — bordas de SUPERFÍCIE (cards, linhas de tabela): a separação fica a cargo da sombra, estilo AdminLTE. Bordas fortes (--color-border) ficam em inputs/selects e separadores funcionais. */
+
+    /* --- Cores: barra lateral (provisório — sidebar escura) --- */
+    --color-sidebar-bg: #1e293b;
+    /* slate-800 — charcoal suave (estilo AdminLTE), menos "buraco negro" que o slate-900 */
+    --color-sidebar-surface: #334155;
+    /* slate-700 — hover/ativo */
+    --color-sidebar-text: #cbd5e1;
+    /* slate-300 */
+    --color-sidebar-text-strong: #ffffff;
+    --color-sidebar-section: #64748b;
+    /* títulos de seção */
+
+    /* --- Cores: estados --------------------------------------- */
+    --color-success: #16a34a;
+    --color-info: #0284c7;
+    --color-warning: #d97706;
+    --color-danger: #dc2626;
+
+    /* --- Tipografia ------------------------------------------- */
+    --font-family-base: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-size-base: 0.875rem;
+    /* 14px — densidade estilo AdminLTE (decisão revista pelo dono do produto — ver docs/padrao-ui.md §6/§9). Em rem: respeita o zoom/preferência de fonte do navegador. */
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --line-height-base: 1.5;
+
+    /* --- Espaçamento (escala) --------------------------------- */
+    --space-1: 0.25rem;
+    /*  4px */
+    --space-2: 0.5rem;
+    /*  8px */
+    --space-3: 1rem;
+    /* 16px */
+    --space-4: 1.5rem;
+    /* 24px */
+    --space-5: 2rem;
+    /* 32px */
+    --space-6: 3rem;
+    /* 48px */
+
+    /* --- Forma ------------------------------------------------ */
+    --radius-base: 0.375rem;
+    /* 6px — discreto */
+
+    /* --- Profundidade (sombras em 2 camadas, inspiradas no AdminLTE) --- */
+    --shadow-sm: 0 0 1px rgba(15, 23, 42, 0.12), 0 1px 3px rgba(15, 23, 42, 0.16);
+    --shadow-md: 0 0 1px rgba(15, 23, 42, 0.14), 0 4px 10px -2px rgba(15, 23, 42, 0.18);
+
+    /* --- Transições ------------------------------------------- */
+    --transition-base: 150ms ease-in-out;
+
+    /* --- Dimensões da casca (app shell) ----------------------- */
+    --sidebar-width: 16rem;
+    --sidebar-width-collapsed: 4.5rem;
+    /* faixa só com ícones */
+    --topbar-height: 3.5rem;
+}
+
+/* ============================================================
+   @font-face — Inter (variable, .woff2 local)
+   ============================================================ */
+@font-face {
+    font-family: 'Inter';
+    src: url('/lib/inter/InterVariable.woff2') format('woff2-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+    /* mostra fallback até a fonte carregar; nunca esconde texto */
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+html {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+}
+
+body {
+    font-family: var(--font-family-base);
+    background-color: var(--color-background);
+    color: var(--color-text);
+}
+
+/* ============================================================
+   Override seletivo de Bootstrap 5 via CSS custom properties.
+   Re-mapeamos as vars que o BS já consome — sem patch no CSS dele.
+   ============================================================ */
+:root {
+    --bs-primary: var(--color-primary);
+    --bs-link-color: var(--color-primary);
+    --bs-link-hover-color: var(--color-primary-hover);
+    --bs-body-bg: var(--color-background);
+    --bs-body-color: var(--color-text);
+    --bs-border-color: var(--color-border);
+    --bs-border-radius: var(--radius-base);
+}
+
+/* Botão primário: Bootstrap compila as cores do .btn-primary em build, então
+   reforçamos via as vars de componente que ele lê em runtime. */
+.btn-primary {
+    --bs-btn-bg: var(--color-primary);
+    --bs-btn-border-color: var(--color-primary);
+    --bs-btn-hover-bg: var(--color-primary-hover);
+    --bs-btn-hover-border-color: var(--color-primary-hover);
+    --bs-btn-active-bg: var(--color-primary-hover);
+    --bs-btn-active-border-color: var(--color-primary-hover);
+}
+
+/* ============================================================
+   App shell — estrutura: sidebar + (topbar + conteúdo)
+   ============================================================ */
+.app-shell {
+    min-height: 100vh;
+}
+
+.app-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-width: 0;
+    /* permite que tabelas largas não estourem o conteúdo */
+    transition: margin-left var(--transition-base);
+}
+
+/* ---- Sidebar (CSS próprio, posicionamento estilo AdminLTE) ---
+   Desktop (md+): fixa à esquerda, altura total, sempre visível; o
+   conteúdo é deslocado via margin-left. Mobile (<md): desliza a
+   partir da esquerda quando recebe .is-open (toggle no site.js). */
+.app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    background-color: var(--color-sidebar-bg);
+    color: var(--color-sidebar-text);
+    overflow-y: auto;
+    z-index: 1045;
+    transform: translateX(-100%);
+    transition: transform var(--transition-base), width var(--transition-base);
+}
+
+.app-sidebar.is-open {
+    transform: translateX(0);
+}
+
+/* Backdrop escuro atrás da sidebar aberta no mobile. */
+.app-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    border: 0;
+    padding: 0;
+    z-index: 1040;
+}
+
+@media (min-width: 768px) {
+    .app-main {
+        margin-left: var(--sidebar-width);
+        /* abre espaço para a sidebar fixa */
+    }
+
+    .app-sidebar {
+        transform: none;
+        /* sempre visível no desktop */
+    }
+
+    .app-sidebar-backdrop {
+        display: none;
+    }
+
+    /* ---- Sidebar recolhida (modo ícones) --------------------
+       Estado persistido em cookie e lido no _Layout (server-side):
+       a classe já sai no <html>, sem flash e sem afrouxar o CSP. */
+    html.sidebar-collapsed .app-sidebar {
+        width: var(--sidebar-width-collapsed);
+    }
+
+    html.sidebar-collapsed .app-main {
+        margin-left: var(--sidebar-width-collapsed);
+    }
+
+    /* Esconde rótulos e títulos de seção; ficam só os ícones. */
+    html.sidebar-collapsed .app-brand span,
+    html.sidebar-collapsed .app-sidebar-nav .nav-link span,
+    html.sidebar-collapsed .sidebar-section {
+        display: none;
+    }
+
+    /* Centraliza os ícones na faixa estreita. */
+    html.sidebar-collapsed .app-brand,
+    html.sidebar-collapsed .app-sidebar-nav .nav-link {
+        justify-content: center;
+        gap: 0;
+    }
+
+    html.sidebar-collapsed .app-sidebar-nav {
+        padding-left: var(--space-1);
+        padding-right: var(--space-1);
+    }
+
+    /* ---- Recolhida + hover: expande em sobreposição ---------
+       Ao passar o mouse (ou focar via teclado) na faixa de ícones,
+       o menu volta à largura cheia e reexibe os rótulos. Flutua
+       POR CIMA do conteúdo: a margem da .app-main não muda, então
+       a página não se desloca (estilo AdminLTE). z-index e fundo
+       opaco já vêm de .app-sidebar. :focus-within cobre teclado.
+       :not(.is-collapsing) desliga a expansão enquanto o site.js
+       recolhe o menu antes de navegar (ver "recolher antes de
+       navegar" em site.js) — evita o flash do reload. */
+    html.sidebar-collapsed .app-sidebar:not(.is-collapsing):is(:hover, :focus-within) {
+        width: var(--sidebar-width);
+    }
+
+    html.sidebar-collapsed .app-sidebar:not(.is-collapsing):is(:hover, :focus-within) .app-brand span,
+    html.sidebar-collapsed .app-sidebar:not(.is-collapsing):is(:hover, :focus-within) .app-sidebar-nav .nav-link span,
+    html.sidebar-collapsed .app-sidebar:not(.is-collapsing):is(:hover, :focus-within) .sidebar-section {
+        display: revert;
+    }
+
+    html.sidebar-collapsed .app-sidebar:not(.is-collapsing):is(:hover, :focus-within) .app-brand,
+    html.sidebar-collapsed .app-sidebar:not(.is-collapsing):is(:hover, :focus-within) .app-sidebar-nav .nav-link {
+        justify-content: flex-start;
+        gap: var(--space-2);
+    }
+
+    html.sidebar-collapsed .app-sidebar:not(.is-collapsing):is(:hover, :focus-within) .app-sidebar-nav {
+        padding-left: var(--space-2);
+        padding-right: var(--space-2);
+    }
+}
+
+.app-sidebar-brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--topbar-height);
+    padding: 0 var(--space-3);
+    border-bottom: 1px solid var(--color-sidebar-surface);
+}
+
+.app-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-sidebar-text-strong);
+    font-weight: var(--font-weight-bold);
+    font-size: 1.125rem;
+    text-decoration: none;
+}
+
+/* Cubo da marca (SVG). Tinge-se pelo `color` do contexto (branco na sidebar,
+   primária no login) e tem tamanho fixo ~28px. */
+.brand-cube {
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: none;
+}
+
+.app-sidebar-nav {
+    padding: var(--space-3) var(--space-2);
+}
+
+.sidebar-section {
+    padding: var(--space-2) var(--space-2) var(--space-1);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-sidebar-section);
+}
+
+.app-sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.625rem var(--space-3);
+    color: var(--color-sidebar-text);
+    border-radius: var(--radius-base);
+    font-weight: var(--font-weight-medium);
+}
+
+.app-sidebar-nav .nav-link .bi {
+    font-size: 1.1rem;
+}
+
+.app-sidebar-nav .nav-link:hover,
+.app-sidebar-nav .nav-link:focus {
+    background-color: var(--color-sidebar-surface);
+    color: var(--color-sidebar-text-strong);
+}
+
+.app-sidebar-nav .nav-link.active {
+    background-color: var(--color-sidebar-surface);
+    color: var(--color-sidebar-text-strong);
+    box-shadow: inset 3px 0 0 var(--color-primary);
+    /* destaque do item atual */
+}
+
+/* ---- Topbar -------------------------------------------------- */
+.app-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    height: var(--topbar-height);
+    padding: 0 var(--space-4);
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+}
+
+.app-user {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-medium);
+}
+
+.app-user .bi {
+    font-size: 1.25rem;
+}
+
+.app-user-menu-toggle {
+    max-width: min(20rem, 52vw);
+}
+
+.app-user-menu-toggle span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-topbar .dropdown-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.app-topbar .dropdown-menu form {
+    margin: 0;
+}
+
+.app-active-site {
+    display: inline-block;
+    max-width: min(24rem, 45vw);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-semibold);
+}
+
+@media (max-width: 575.98px) {
+    .app-active-site {
+        max-width: 38vw;
+    }
+}
+
+/* ---- Área de conteúdo + rodapé ------------------------------- */
+.app-content {
+    flex: 1 0 auto;
+    padding: var(--space-4);
+}
+
+.app-footer {
+    flex-shrink: 0;
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text-muted);
+    background-color: #ffffff;
+    border-top: 1px solid var(--color-border);
+}
+
+/* ---- Cabeçalho de página (componente base) ------------------- */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 1.625rem;
+    /* hierarquia um pouco mais presente */
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: -0.01em;
+    /* leve aperto — visual mais moderno */
+}
+
+/* ---- Card de conteúdo (superfície branca sobre o fundo) ------
+   Remapeia o .card do Bootstrap para nossos tokens. A variante
+   .card-accent adiciona a linha de destaque no topo. Ver docs/padrao-ui.md §5. */
+.card {
+    --bs-card-bg: var(--color-surface);
+    /* Borda suave: a separação do fundo fica a cargo da sombra (estilo AdminLTE). */
+    --bs-card-border-color: var(--color-border-subtle);
+    --bs-card-border-radius: var(--radius-base);
+    --bs-card-cap-bg: var(--color-surface);
+    /* Respiro interno mais confortável; card-header/footer alinhados na horizontal. */
+    --bs-card-spacer-y: var(--space-4);
+    --bs-card-spacer-x: var(--space-4);
+    --bs-card-cap-padding-y: var(--space-3);
+    --bs-card-cap-padding-x: var(--space-4);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-accent {
+    border-top: 3px solid var(--color-primary);
+}
+
+/* Rodapé do card como "barra de ações": leve fundo acinzentado para separar
+   visualmente do corpo branco (estilo AdminLTE). */
+.card-footer {
+    background-color: #00000008;
+}
+
+/* Campos de formulário sobre superfície branca (contraste com o fundo cinza e com
+   o rodapé acinzentado do card). Estados :disabled mantêm o cinza sólido do Bootstrap
+   — a maior especificidade de :disabled prevalece (acessibilidade — docs/padrao-ui.md §9: disabled distinto). */
+.form-control,
+.form-select,
+.form-check-input {
+    background-color: var(--color-surface);
+}
+
+/* ---- Barras de filtros e ações responsivas ------------------
+   Campos complexos usam o grid do Bootstrap nas views. A busca
+   mantém o input-group dos CRUDs; as ações de página se adaptam
+   separadamente conforme a largura disponível. */
+.filter-bar .form-control,
+.filter-bar .form-select {
+    min-width: 0;
+}
+
+.page-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+}
+
+.page-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+}
+
+.page-actions > :only-child {
+    grid-column: 1 / -1;
+}
+
+@media (min-width: 400px) {
+    .page-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 576px) {
+    .page-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+}
+
+@media (pointer: coarse) {
+    .page-actions .btn {
+        min-height: 2.75rem;
+    }
+}
+
+/* ---- Ícone de ajuda no rótulo do campo (partial _FieldHelp) --------------
+   O texto explicativo sai de baixo do campo e passa a viver num tooltip,
+   acionado por hover e por foco de teclado. Botão sem cara de botão. */
+/* O [type="button"] no seletor não é enfeite: o reboot do Bootstrap usa
+   `[type="button"]:not(:disabled) { cursor: pointer }`, que é mais específico que .field-help
+   sozinho. Sem ele o cursor de ajuda não vale. */
+button[type="button"].field-help {
+    border: 0;
+    background: none;
+    padding: 0;
+    margin-left: 4px;
+    line-height: 1;
+    color: var(--color-text-muted);
+    cursor: help;
+    vertical-align: baseline;
+}
+
+.field-help:hover,
+.field-help:focus-visible {
+    color: var(--color-primary);
+}
+
+/* O foco precisa ser visível: é assim que se chega ao tooltip pelo teclado. */
+.field-help:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* O Bootstrap 5.3 faz --bs-table-bg herdar --bs-body-bg (nosso fundo acinzentado),
+   deixando a tabela mais escura que o card. Tabelas vivem sobre superfície branca. */
+.table {
+    --bs-table-bg: var(--color-surface);
+    --bs-table-border-color: var(--color-border-subtle);
+    /* separadores de linha leves */
+}
+
+/* Cabeçalho da tabela = mesmo estilo dos labels dos formulários (.form-label + <strong>):
+   cor de texto padrão (herdada), peso bold e tamanho base. Sem maiúsculas nem encolhimento. */
+.table>thead>tr>th {
+    font-weight: var(--font-weight-bold);
+}
+
+/* Listagem não quebra linha: conteúdo longo trunca em vez de aumentar a altura da linha.
+   Combinado com .table-responsive, muitas/largas colunas geram scroll horizontal
+   (inclusive no mobile). */
+.table> :not(caption)>*>* {
+    white-space: nowrap;
+}
+
+/* Célula de texto potencialmente longo: trunca com reticências. Manter um title com o
+   valor completo para acesso via hover (desktop) / toque longo (mobile). */
+.cell-truncate {
+    max-width: 18rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ============================================================
+   Layout de autenticação (login, recuperação) — sem casca
+   ============================================================ */
+.auth-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 24rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-5);
+}
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+}
+
+/* ============================================================
+   Acessibilidade — skip-link (escondido até receber foco)
+   ============================================================ */
+.skip-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: var(--space-2) var(--space-3);
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+    text-decoration: none;
+    transform: translateY(-100%);
+    transition: transform var(--transition-base);
+    z-index: 1080;
+    /* acima da topbar e de modais Bootstrap */
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+    outline: 3px solid var(--color-text);
+    outline-offset: 0;
+}
+
+/* ============================================================
+   Acessibilidade — foco visível global
+   ============================================================ */
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-base);
+}
+
+/* main recebe foco programaticamente via skip-link; halo seria ruído visual */
+main:focus-visible {
+    outline: none;
+}

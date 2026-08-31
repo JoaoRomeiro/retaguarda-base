@@ -1,0 +1,81 @@
+@using Retaguarda.Web.Models.Users
+@model Retaguarda.Business.Users.Dtos.CreateUserRequest
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["users_new"].Value;
+    var sites = ViewData["Sites"] as IReadOnlyList<SiteOption> ?? [];
+    var roles = ViewData["Roles"] as IReadOnlyList<string> ?? [];
+}
+
+<div class="page-header">
+    <h1>@L["users_new"]</h1>
+</div>
+
+<form asp-action="Create" method="post" data-disable-on-submit>
+    <input type="hidden" name="search" value="@ViewData["ListSearch"]" />
+    <input type="hidden" name="page" value="@ViewData["ListPage"]" />
+
+    <div class="card card-accent mb-4">
+        <div class="card-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FullName" class="form-label"><strong>@L["user_field_fullname"]</strong></label>
+                    <input asp-for="FullName" class="form-control" autofocus />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label"><strong>@L["user_field_email"]</strong></label>
+                    <input asp-for="Email" class="form-control" type="email" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Password" class="form-label"><strong>@L["user_field_password"]</strong></label>
+                    <input asp-for="Password" class="form-control" type="password" autocomplete="new-password" />
+                    <span class="form-text">@L["user_field_password_hint"]</span>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="RoleName" class="form-label"><strong>@L["user_field_role"]</strong></label>
+                    <select asp-for="RoleName" class="form-select">
+                        <option value="">@L["user_role_select"]</option>
+                        @foreach (var role in roles)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    </select>
+                    <span asp-validation-for="RoleName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DefaultSiteId" class="form-label"><strong>@L["user_field_default_site"]</strong></label>
+                    <select asp-for="DefaultSiteId" class="form-select">
+                        <option value="0">@L["user_default_site_select"]</option>
+                        @foreach (var site in sites)
+                        {
+                            <option value="@site.Id">@site.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="DefaultSiteId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="IsActive" class="form-label"><strong>@L["user_field_active"]</strong></label>
+                    @* name/id explícitos + selected condicional: binding de bool em select sem ambiguidade. *@
+                    <select name="IsActive" id="IsActive" class="form-select">
+                        <option value="true" selected="@(Model.IsActive ? "selected" : null)">@L["active_yes"]</option>
+                        <option value="false" selected="@(!Model.IsActive ? "selected" : null)">@L["active_no"]</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary" data-loading-text="@L["saving"]">@L["save"]</button>
+            <a asp-action="Index" asp-route-search="@ViewData["ListSearch"]" asp-route-page="@ViewData["ListPage"]"
+               class="btn btn-secondary">@L["cancel"]</a>
+        </div>
+    </div>
+</form>

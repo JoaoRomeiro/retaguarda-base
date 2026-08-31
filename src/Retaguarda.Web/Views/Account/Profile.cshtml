@@ -1,0 +1,72 @@
+@model Retaguarda.Web.Models.Account.ProfileViewModel
+@inject IStringLocalizer<SharedResources> L
+@{
+    ViewData["Title"] = L["profile_title"].Value;
+    var statusMessage = TempData["StatusMessage"] as string;
+}
+
+<div class="page-header">
+    <h1>@L["profile_title"]</h1>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(statusMessage))
+{
+    <div class="alert alert-success" role="alert">@statusMessage</div>
+}
+
+<form asp-controller="Account" asp-action="ChangePassword" method="post" data-disable-on-submit>
+    <div class="card card-accent mb-4">
+        <div class="card-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FullName" class="form-label"><strong>@L["user_field_fullname"]</strong></label>
+                    <input asp-for="FullName" class="form-control" readonly />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label"><strong>@L["user_field_email"]</strong></label>
+                    <input asp-for="Email" class="form-control" readonly />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="RoleName" class="form-label"><strong>@L["user_field_role"]</strong></label>
+                    <input asp-for="RoleName" class="form-control" readonly />
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                    <label asp-for="CurrentPassword" class="form-label"><strong>@L["change_password_current_label"]</strong></label>
+                    <input asp-for="CurrentPassword" class="form-control" autocomplete="current-password" autofocus />
+                    <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <label asp-for="NewPassword" class="form-label"><strong>@L["change_password_new_label"]</strong></label>
+                    <input asp-for="NewPassword" class="form-control" autocomplete="new-password" />
+                    <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <label asp-for="ConfirmPassword" class="form-label"><strong>@L["change_password_confirm_label"]</strong></label>
+                    <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary" data-loading-text="@L["change_password_submitting"]">
+                @L["change_password_submit"]
+            </button>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">@L["cancel"]</a>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,6 @@
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@*
+    Rodapé da casca. Ano calculado em UTC para evitar drift de timezone.
+    Sem .container: o texto segue o padding do .app-footer, alinhado à esquerda.
+*@
+<small>@string.Format(SharedLocalizer["footer_copyright"].Value, DateTime.UtcNow.Year)</small>

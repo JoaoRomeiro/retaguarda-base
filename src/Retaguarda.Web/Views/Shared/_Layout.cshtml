@@ -1,0 +1,56 @@
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@{
+    // Idioma da página segue a cultura UI atual (definida pelo RequestLocalization).
+    var lang = System.Globalization.CultureInfo.CurrentUICulture.Name;
+    // Estado da sidebar persistido em cookie; aplicado no render para evitar flash
+    // (CSP estrita não permite script inline anti-flash). Toggle ao vivo em site.js.
+    var sidebarCollapsed = Context.Request.Cookies["sidebar_collapsed"] == "1";
+}
+<!DOCTYPE html>
+<html lang="@lang" class="@(sidebarCollapsed ? "sidebar-collapsed" : null)">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - @SharedLocalizer["app_title"]</title>
+
+    @* Preload da fonte variable Inter para evitar FOUT na primeira pintura. *@
+    <link rel="preload" as="font" href="~/lib/inter/InterVariable.woff2" type="font/woff2" crossorigin />
+
+    @* Ordem: Bootstrap (base) → ícones → theme (tokens + shell) → site → component-scoped. *@
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Retaguarda.Web.styles.css" asp-append-version="true" />
+    @* CSS específico de tela (wwwroot/css/pages/<area>.css) entra por último. *@
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    @* Skip-link: acessibilidade — primeiro foco tab-stop, pula para o main. *@
+    <a href="#main-content" class="skip-link">@SharedLocalizer["skip_to_main_content"]</a>
+
+    <div class="app-shell">
+        <partial name="_Sidebar" />
+
+        <div class="app-main">
+            <partial name="_Topbar" />
+
+            @* tabindex="-1" permite que o skip-link mova o foco para o main em todos os browsers. *@
+            <main id="main-content" tabindex="-1" class="app-content">
+                @RenderBody()
+            </main>
+
+            <footer class="app-footer">
+                <partial name="_Footer" />
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/forms.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @* Trunca o texto das options de todos os selects (atuais e futuros) — ver §15.8. *@
+    <script src="~/js/select-truncate.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

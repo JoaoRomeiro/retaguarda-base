@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+
+    <!-- CA1707: nomes de teste seguem o padrão idiomático Metodo_Cenario_Resultado, com
+         underscores propositais para legibilidade. Suprimido só no projeto de testes. -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Tipos do ASP.NET Core (DefaultHttpContext, ApplicationBuilder) para testar middlewares. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Retaguarda.AspNetCore\Retaguarda.AspNetCore.csproj" />
+    <!-- Para testar a lógica pura de auditoria/soft delete (AuditStamper) sem provider EF. -->
+    <ProjectReference Include="..\..\src\Retaguarda.Data\Retaguarda.Data.csproj" />
+    <!-- Para testar SiteService/validators com um repositório fake (sem provider EF). -->
+    <ProjectReference Include="..\..\src\Retaguarda.Business\Retaguarda.Business.csproj" />
+    <!-- Para testar infraestrutura MVC específica do Web. -->
+    <ProjectReference Include="..\..\src\Retaguarda.Web\Retaguarda.Web.csproj" />
+    <!-- Para testar infraestrutura MVC específica da Api (ValidationExceptionFilter). -->
+    <ProjectReference Include="..\..\src\Retaguarda.Api\Retaguarda.Api.csproj" />
+    <ProjectReference Include="..\..\src\Retaguarda.Printing\Retaguarda.Printing.csproj" />
+    <ProjectReference Include="..\..\src\Retaguarda.Reporting\Retaguarda.Reporting.csproj" />
+  </ItemGroup>
+
+</Project>

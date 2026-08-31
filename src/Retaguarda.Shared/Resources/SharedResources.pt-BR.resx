@@ -1,0 +1,723 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="app_title" xml:space="preserve">
+    <value>Retaguarda</value>
+  </data>
+  <data name="skip_to_main_content" xml:space="preserve">
+    <value>Pular para o conteúdo principal</value>
+  </data>
+  <data name="nav_primary_aria" xml:space="preserve">
+    <value>Navegação principal</value>
+  </data>
+  <data name="nav_home" xml:space="preserve">
+    <value>Início</value>
+  </data>
+  <data name="footer_copyright" xml:space="preserve">
+    <value>© {0} Retaguarda</value>
+  </data>
+  <data name="nav_login" xml:space="preserve">
+    <value>Entrar</value>
+  </data>
+  <data name="nav_logout" xml:space="preserve">
+    <value>Sair</value>
+  </data>
+  <data name="nav_profile" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="nav_change_site" xml:space="preserve">
+    <value>Trocar planta</value>
+  </data>
+  <data name="user_menu_aria" xml:space="preserve">
+    <value>Menu do usuário</value>
+  </data>
+  <data name="nav_section_general" xml:space="preserve">
+    <value>Geral</value>
+  </data>
+  <data name="close" xml:space="preserve">
+    <value>Fechar</value>
+  </data>
+  <data name="sidebar_collapse_toggle" xml:space="preserve">
+    <value>Recolher ou expandir o menu</value>
+  </data>
+  <data name="login_title" xml:space="preserve">
+    <value>Entrar</value>
+  </data>
+  <data name="login_email_label" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="login_password_label" xml:space="preserve">
+    <value>Senha</value>
+  </data>
+  <data name="login_remember_me" xml:space="preserve">
+    <value>Manter-me conectado</value>
+  </data>
+  <data name="login_submit" xml:space="preserve">
+    <value>Entrar</value>
+  </data>
+  <data name="login_submitting" xml:space="preserve">
+    <value>Entrando…</value>
+  </data>
+  <data name="login_invalid" xml:space="preserve">
+    <value>E-mail ou senha inválidos.</value>
+  </data>
+  <data name="access_denied_title" xml:space="preserve">
+    <value>Acesso negado</value>
+  </data>
+  <data name="access_denied_message" xml:space="preserve">
+    <value>Você não tem permissão para acessar este recurso.</value>
+  </data>
+  <data name="back_to_home" xml:space="preserve">
+    <value>Voltar ao início</value>
+  </data>
+  <data name="field_required" xml:space="preserve">
+    <value>Campo obrigatório.</value>
+  </data>
+  <data name="invalid_email" xml:space="preserve">
+    <value>Informe um e-mail válido.</value>
+  </data>
+  <data name="forgot_password_link" xml:space="preserve">
+    <value>Esqueci minha senha</value>
+  </data>
+  <data name="forgot_password_title" xml:space="preserve">
+    <value>Recuperar senha</value>
+  </data>
+  <data name="forgot_password_intro" xml:space="preserve">
+    <value>Informe o e-mail da sua conta. Se ele estiver cadastrado, enviaremos um link para redefinir a senha.</value>
+  </data>
+  <data name="forgot_password_submit" xml:space="preserve">
+    <value>Enviar link</value>
+  </data>
+  <data name="forgot_password_submitting" xml:space="preserve">
+    <value>Enviando…</value>
+  </data>
+  <data name="forgot_password_confirmation_title" xml:space="preserve">
+    <value>Verifique seu e-mail</value>
+  </data>
+  <data name="forgot_password_confirmation_message" xml:space="preserve">
+    <value>Se o e-mail informado estiver cadastrado, você receberá um link para redefinir a senha. Verifique também a caixa de spam.</value>
+  </data>
+  <data name="reset_password_title" xml:space="preserve">
+    <value>Definir nova senha</value>
+  </data>
+  <data name="reset_password_new_label" xml:space="preserve">
+    <value>Nova senha</value>
+  </data>
+  <data name="reset_password_confirm_label" xml:space="preserve">
+    <value>Confirmar nova senha</value>
+  </data>
+  <data name="reset_password_submit" xml:space="preserve">
+    <value>Redefinir senha</value>
+  </data>
+  <data name="reset_password_submitting" xml:space="preserve">
+    <value>Salvando…</value>
+  </data>
+  <data name="reset_password_confirmation_title" xml:space="preserve">
+    <value>Senha redefinida</value>
+  </data>
+  <data name="reset_password_confirmation_message" xml:space="preserve">
+    <value>Sua senha foi redefinida com sucesso. Você já pode entrar com a nova senha.</value>
+  </data>
+  <data name="reset_link_invalid" xml:space="preserve">
+    <value>O link de recuperação é inválido ou expirou. Solicite um novo.</value>
+  </data>
+  <data name="reset_password_failed" xml:space="preserve">
+    <value>Não foi possível redefinir a senha. Verifique os dados e tente novamente.</value>
+  </data>
+  <data name="password_policy" xml:space="preserve">
+    <value>A senha deve ter ao menos 8 caracteres, incluindo maiúscula, minúscula, número e símbolo.</value>
+  </data>
+  <data name="password_mismatch" xml:space="preserve">
+    <value>As senhas não conferem.</value>
+  </data>
+  <data name="profile_title" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="profile_role_empty" xml:space="preserve">
+    <value>Sem acesso atribuído</value>
+  </data>
+  <data name="profile_password_updated" xml:space="preserve">
+    <value>Senha alterada com sucesso.</value>
+  </data>
+  <data name="change_password_current_label" xml:space="preserve">
+    <value>Senha atual</value>
+  </data>
+  <data name="change_password_new_label" xml:space="preserve">
+    <value>Nova senha</value>
+  </data>
+  <data name="change_password_confirm_label" xml:space="preserve">
+    <value>Confirmar nova senha</value>
+  </data>
+  <data name="change_password_submit" xml:space="preserve">
+    <value>Alterar senha</value>
+  </data>
+  <data name="change_password_submitting" xml:space="preserve">
+    <value>Salvando…</value>
+  </data>
+  <data name="change_password_current_invalid" xml:space="preserve">
+    <value>Senha atual inválida.</value>
+  </data>
+  <data name="change_password_failed" xml:space="preserve">
+    <value>Não foi possível alterar a senha. Verifique os dados e tente novamente.</value>
+  </data>
+  <data name="back_to_login" xml:space="preserve">
+    <value>Voltar ao login</value>
+  </data>
+  <data name="site_name_required" xml:space="preserve">
+    <value>Informe o nome da planta.</value>
+  </data>
+  <data name="site_name_too_long" xml:space="preserve">
+    <value>O nome deve ter no máximo 200 caracteres.</value>
+  </data>
+  <data name="site_name_in_use" xml:space="preserve">
+    <value>Já existe uma planta com este nome.</value>
+  </data>
+  <data name="site_code_required" xml:space="preserve">
+    <value>Informe o código da planta.</value>
+  </data>
+  <data name="site_code_too_long" xml:space="preserve">
+    <value>O código deve ter no máximo 20 caracteres.</value>
+  </data>
+  <data name="site_code_in_use" xml:space="preserve">
+    <value>Já existe uma planta com este código.</value>
+  </data>
+  <data name="site_timezone_required" xml:space="preserve">
+    <value>Informe o fuso horário da planta.</value>
+  </data>
+  <data name="site_timezone_invalid" xml:space="preserve">
+    <value>Fuso horário inválido. Use um identificador como America/Sao_Paulo.</value>
+  </data>
+  <data name="site_id_invalid" xml:space="preserve">
+    <value>Identificador de planta inválido.</value>
+  </data>
+  <data name="site_timezone_select" xml:space="preserve">
+    <value>Selecione…</value>
+  </data>
+  <data name="tz_america_sao_paulo" xml:space="preserve">
+    <value>Brasília / São Paulo (UTC−3)</value>
+  </data>
+  <data name="tz_america_fortaleza" xml:space="preserve">
+    <value>Fortaleza (UTC−3)</value>
+  </data>
+  <data name="tz_america_recife" xml:space="preserve">
+    <value>Recife (UTC−3)</value>
+  </data>
+  <data name="tz_america_belem" xml:space="preserve">
+    <value>Belém (UTC−3)</value>
+  </data>
+  <data name="tz_america_bahia" xml:space="preserve">
+    <value>Salvador (UTC−3)</value>
+  </data>
+  <data name="tz_america_manaus" xml:space="preserve">
+    <value>Manaus (UTC−4)</value>
+  </data>
+  <data name="tz_america_cuiaba" xml:space="preserve">
+    <value>Cuiabá (UTC−4)</value>
+  </data>
+  <data name="tz_america_boa_vista" xml:space="preserve">
+    <value>Boa Vista (UTC−4)</value>
+  </data>
+  <data name="tz_america_porto_velho" xml:space="preserve">
+    <value>Porto Velho (UTC−4)</value>
+  </data>
+  <data name="tz_america_rio_branco" xml:space="preserve">
+    <value>Rio Branco (UTC−5)</value>
+  </data>
+  <data name="tz_america_noronha" xml:space="preserve">
+    <value>Fernando de Noronha (UTC−2)</value>
+  </data>
+  <data name="nav_section_registrations" xml:space="preserve">
+    <value>Cadastros</value>
+  </data>
+  <data name="nav_sites" xml:space="preserve">
+    <value>Plantas</value>
+  </data>
+  <data name="sites_title" xml:space="preserve">
+    <value>Plantas</value>
+  </data>
+  <data name="sites_new" xml:space="preserve">
+    <value>Nova planta</value>
+  </data>
+  <data name="sites_edit" xml:space="preserve">
+    <value>Editar planta</value>
+  </data>
+  <data name="sites_search_placeholder" xml:space="preserve">
+    <value>Buscar por nome ou código</value>
+  </data>
+  <data name="sites_empty" xml:space="preserve">
+    <value>Nenhuma planta encontrada.</value>
+  </data>
+  <data name="sites_delete_confirm" xml:space="preserve">
+    <value>Tem certeza que deseja excluir a planta "{0}" ({1})?</value>
+  </data>
+  <data name="site_created" xml:space="preserve">
+    <value>Planta criada com sucesso.</value>
+  </data>
+  <data name="site_updated" xml:space="preserve">
+    <value>Planta atualizada com sucesso.</value>
+  </data>
+  <data name="site_deleted" xml:space="preserve">
+    <value>Planta excluída com sucesso.</value>
+  </data>
+  <data name="site_field_code" xml:space="preserve">
+    <value>Código</value>
+  </data>
+  <data name="site_field_name" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="site_field_timezone" xml:space="preserve">
+    <value>Fuso horário</value>
+  </data>
+  <data name="site_field_active" xml:space="preserve">
+    <value>Ativa</value>
+  </data>
+  <!-- Mensagens do model binder (LocalizedModelBindingMessages): substituem os textos padrão do
+       ASP.NET Core, que são em inglês. Valem para todos os CRUDs. -->
+  <data name="modelbinding_value_is_invalid" xml:space="preserve">
+    <value>O valor "{0}" é inválido.</value>
+  </data>
+  <data name="modelbinding_attempted_value_is_invalid" xml:space="preserve">
+    <value>O valor "{0}" não é válido para o campo {1}.</value>
+  </data>
+  <data name="modelbinding_value_must_be_number" xml:space="preserve">
+    <value>O campo {0} deve ser um número.</value>
+  </data>
+  <data name="modelbinding_value_must_not_be_null" xml:space="preserve">
+    <value>O campo é obrigatório.</value>
+  </data>
+  <data name="modelbinding_missing_bind_required_value" xml:space="preserve">
+    <value>O campo {0} não foi informado.</value>
+  </data>
+  <data name="modelbinding_missing_key_or_value" xml:space="preserve">
+    <value>O campo é obrigatório.</value>
+  </data>
+  <data name="modelbinding_missing_request_body" xml:space="preserve">
+    <value>O corpo da requisição é obrigatório.</value>
+  </data>
+  <data name="modelbinding_unknown_value_is_invalid" xml:space="preserve">
+    <value>O valor informado para o campo {0} é inválido.</value>
+  </data>
+  <data name="modelbinding_non_property_attempted_value_is_invalid" xml:space="preserve">
+    <value>O valor "{0}" é inválido.</value>
+  </data>
+  <data name="modelbinding_non_property_unknown_value_is_invalid" xml:space="preserve">
+    <value>O valor informado é inválido.</value>
+  </data>
+  <data name="modelbinding_non_property_value_must_be_number" xml:space="preserve">
+    <value>O valor informado deve ser um número.</value>
+  </data>
+  <data name="nav_roles" xml:space="preserve">
+    <value>Acessos</value>
+  </data>
+  <data name="roles_title" xml:space="preserve">
+    <value>Acessos</value>
+  </data>
+  <data name="roles_new" xml:space="preserve">
+    <value>Novo acesso</value>
+  </data>
+  <data name="roles_edit" xml:space="preserve">
+    <value>Editar acesso</value>
+  </data>
+  <data name="roles_search_placeholder" xml:space="preserve">
+    <value>Buscar por nome ou descrição</value>
+  </data>
+  <data name="roles_empty" xml:space="preserve">
+    <value>Nenhum acesso encontrado.</value>
+  </data>
+  <data name="roles_delete_confirm" xml:space="preserve">
+    <value>Tem certeza que deseja excluir o acesso "{0}"?</value>
+  </data>
+  <data name="role_created" xml:space="preserve">
+    <value>Acesso criado com sucesso.</value>
+  </data>
+  <data name="role_updated" xml:space="preserve">
+    <value>Acesso atualizado com sucesso.</value>
+  </data>
+  <data name="role_deleted" xml:space="preserve">
+    <value>Acesso excluído com sucesso.</value>
+  </data>
+  <data name="role_field_name" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="role_field_description" xml:space="preserve">
+    <value>Descrição</value>
+  </data>
+  <data name="role_field_type" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="role_type_system" xml:space="preserve">
+    <value>Interno</value>
+  </data>
+  <data name="role_type_custom" xml:space="preserve">
+    <value>Personalizado</value>
+  </data>
+  <data name="role_field_name_system_hint" xml:space="preserve">
+    <value>O nome de acessos internos não pode ser alterado.</value>
+  </data>
+  <data name="role_name_required" xml:space="preserve">
+    <value>O nome é obrigatório.</value>
+  </data>
+  <data name="role_name_too_long" xml:space="preserve">
+    <value>O nome deve ter no máximo 256 caracteres.</value>
+  </data>
+  <data name="role_name_in_use" xml:space="preserve">
+    <value>Já existe um acesso com este nome.</value>
+  </data>
+  <data name="role_description_too_long" xml:space="preserve">
+    <value>A descrição deve ter no máximo 200 caracteres.</value>
+  </data>
+  <data name="role_id_invalid" xml:space="preserve">
+    <value>Acesso inválido.</value>
+  </data>
+  <data name="role_delete_system" xml:space="preserve">
+    <value>Acessos internos não podem ser excluídos.</value>
+  </data>
+  <data name="role_delete_has_users" xml:space="preserve">
+    <value>Não é possível excluir: há usuários vinculados a este acesso.</value>
+  </data>
+  <data name="nav_users" xml:space="preserve">
+    <value>Usuários</value>
+  </data>
+  <data name="users_title" xml:space="preserve">
+    <value>Usuários</value>
+  </data>
+  <data name="users_new" xml:space="preserve">
+    <value>Novo usuário</value>
+  </data>
+  <data name="users_edit" xml:space="preserve">
+    <value>Editar usuário</value>
+  </data>
+  <data name="users_search_placeholder" xml:space="preserve">
+    <value>Buscar por nome ou e-mail</value>
+  </data>
+  <data name="users_empty" xml:space="preserve">
+    <value>Nenhum usuário encontrado.</value>
+  </data>
+  <data name="users_delete_confirm" xml:space="preserve">
+    <value>Tem certeza que deseja excluir o usuário "{0}" ({1})?</value>
+  </data>
+  <data name="user_created" xml:space="preserve">
+    <value>Usuário criado com sucesso.</value>
+  </data>
+  <data name="user_updated" xml:space="preserve">
+    <value>Usuário atualizado com sucesso.</value>
+  </data>
+  <data name="user_deleted" xml:space="preserve">
+    <value>Usuário excluído com sucesso.</value>
+  </data>
+  <data name="user_delete_self" xml:space="preserve">
+    <value>Você não pode excluir a própria conta.</value>
+  </data>
+  <data name="user_field_fullname" xml:space="preserve">
+    <value>Nome completo</value>
+  </data>
+  <data name="user_field_email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="user_field_password" xml:space="preserve">
+    <value>Senha</value>
+  </data>
+  <data name="user_field_role" xml:space="preserve">
+    <value>Acesso (perfil)</value>
+  </data>
+  <data name="user_field_sites" xml:space="preserve">
+    <value>Plantas</value>
+  </data>
+  <data name="user_field_default_site" xml:space="preserve">
+    <value>Planta padrão</value>
+  </data>
+  <data name="user_field_active" xml:space="preserve">
+    <value>Ativo</value>
+  </data>
+  <data name="user_field_password_hint" xml:space="preserve">
+    <value>Mínimo 8 caracteres, com maiúscula, minúscula, número e símbolo.</value>
+  </data>
+  <data name="user_email_readonly_hint" xml:space="preserve">
+    <value>O e-mail (login) não pode ser alterado.</value>
+  </data>
+  <data name="user_role_select" xml:space="preserve">
+    <value>Selecione o acesso…</value>
+  </data>
+  <data name="user_default_site_select" xml:space="preserve">
+    <value>Selecione a planta padrão…</value>
+  </data>
+  <data name="user_id_invalid" xml:space="preserve">
+    <value>Usuário inválido.</value>
+  </data>
+  <data name="user_fullname_required" xml:space="preserve">
+    <value>O nome completo é obrigatório.</value>
+  </data>
+  <data name="user_fullname_too_long" xml:space="preserve">
+    <value>O nome deve ter no máximo 200 caracteres.</value>
+  </data>
+  <data name="user_email_required" xml:space="preserve">
+    <value>O e-mail é obrigatório.</value>
+  </data>
+  <data name="user_email_invalid" xml:space="preserve">
+    <value>Informe um e-mail válido.</value>
+  </data>
+  <data name="user_email_too_long" xml:space="preserve">
+    <value>O e-mail deve ter no máximo 256 caracteres.</value>
+  </data>
+  <data name="user_email_in_use" xml:space="preserve">
+    <value>Já existe um usuário com este e-mail.</value>
+  </data>
+  <data name="user_password_required" xml:space="preserve">
+    <value>A senha é obrigatória.</value>
+  </data>
+  <data name="user_password_policy" xml:space="preserve">
+    <value>A senha deve ter no mínimo 8 caracteres, com maiúscula, minúscula, número e símbolo.</value>
+  </data>
+  <data name="user_role_required" xml:space="preserve">
+    <value>Selecione um acesso (perfil).</value>
+  </data>
+  <data name="user_role_invalid" xml:space="preserve">
+    <value>Acesso (perfil) inválido.</value>
+  </data>
+  <data name="user_site_invalid" xml:space="preserve">
+    <value>Uma das plantas selecionadas é inválida.</value>
+  </data>
+  <data name="user_default_site_required" xml:space="preserve">
+    <value>Selecione a planta padrão.</value>
+  </data>
+  <data name="user_default_site_not_linked" xml:space="preserve">
+    <value>A planta padrão deve estar entre as plantas associadas ao usuário.</value>
+  </data>
+  <data name="usersites_title" xml:space="preserve">
+    <value>Plantas de {0}</value>
+  </data>
+  <data name="usersites_new" xml:space="preserve">
+    <value>Associar planta</value>
+  </data>
+  <data name="usersites_search_placeholder" xml:space="preserve">
+    <value>Buscar por código ou nome</value>
+  </data>
+  <data name="usersites_empty" xml:space="preserve">
+    <value>Nenhuma planta associada.</value>
+  </data>
+  <data name="usersites_delete_confirm" xml:space="preserve">
+    <value>Remover a associação da planta "{0}" ({1})?</value>
+  </data>
+  <data name="usersite_created" xml:space="preserve">
+    <value>Planta associada com sucesso.</value>
+  </data>
+  <data name="usersite_deleted" xml:space="preserve">
+    <value>Associação removida com sucesso.</value>
+  </data>
+  <data name="usersite_delete_default" xml:space="preserve">
+    <value>Não é possível remover a planta padrão. Altere a planta padrão na edição do usuário antes.</value>
+  </data>
+  <data name="usersite_field_site" xml:space="preserve">
+    <value>Planta</value>
+  </data>
+  <data name="usersite_site_select" xml:space="preserve">
+    <value>Selecione a planta…</value>
+  </data>
+  <data name="usersite_no_available" xml:space="preserve">
+    <value>Não há plantas disponíveis para associar.</value>
+  </data>
+  <data name="usersite_badge_default" xml:space="preserve">
+    <value>Padrão</value>
+  </data>
+  <data name="usersite_remove" xml:space="preserve">
+    <value>Remover</value>
+  </data>
+  <data name="usersite_site_required" xml:space="preserve">
+    <value>Selecione uma planta.</value>
+  </data>
+  <data name="usersite_site_invalid" xml:space="preserve">
+    <value>Planta inválida ou já associada.</value>
+  </data>
+  <data name="site_selection_title" xml:space="preserve">
+    <value>Selecione a planta</value>
+  </data>
+  <data name="site_selection_intro" xml:space="preserve">
+    <value>Escolha a planta que deseja acessar nesta sessão.</value>
+  </data>
+  <data name="site_selection_field" xml:space="preserve">
+    <value>Planta</value>
+  </data>
+  <data name="site_selection_placeholder" xml:space="preserve">
+    <value>Selecione…</value>
+  </data>
+  <data name="site_selection_submit" xml:space="preserve">
+    <value>Acessar</value>
+  </data>
+  <data name="site_selection_submitting" xml:space="preserve">
+    <value>Acessando…</value>
+  </data>
+  <data name="site_selection_none" xml:space="preserve">
+    <value>Você não tem nenhuma planta ativa associada. Contate o administrador.</value>
+  </data>
+  <data name="site_selection_invalid" xml:space="preserve">
+    <value>Selecione uma planta válida.</value>
+  </data>
+  <data name="site_selection_required" xml:space="preserve">
+    <value>Selecione uma planta.</value>
+  </data>
+  <data name="site_selection_logout" xml:space="preserve">
+    <value>Sair</value>
+  </data>
+  <data name="active_yes" xml:space="preserve">
+    <value>Sim</value>
+  </data>
+  <data name="active_no" xml:space="preserve">
+    <value>Não</value>
+  </data>
+  <data name="delete_confirm_title" xml:space="preserve">
+    <value>Confirmar exclusão</value>
+  </data>
+  <data name="actions" xml:space="preserve">
+    <value>Ações</value>
+  </data>
+  <data name="search" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="clear_search" xml:space="preserve">
+    <value>Limpar</value>
+  </data>
+  <data name="new" xml:space="preserve">
+    <value>Novo</value>
+  </data>
+  <data name="back" xml:space="preserve">
+    <value>Voltar</value>
+  </data>
+  <data name="edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="delete" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="save" xml:space="preserve">
+    <value>Salvar</value>
+  </data>
+  <data name="saving" xml:space="preserve">
+    <value>Salvando…</value>
+  </data>
+  <data name="deleting" xml:space="preserve">
+    <value>Excluindo…</value>
+  </data>
+  <data name="cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="pagination_label" xml:space="preserve">
+    <value>Paginação</value>
+  </data>
+  <data name="pagination_info" xml:space="preserve">
+    <value>Página {0} de {1}</value>
+  </data>
+  <data name="pagination_prev" xml:space="preserve">
+    <value>Anterior</value>
+  </data>
+  <data name="pagination_next" xml:space="preserve">
+    <value>Próxima</value>
+  </data>
+  <data name="validation_error" xml:space="preserve">
+    <value>Há erros de validação.</value>
+  </data>
+  <data name="details" xml:space="preserve">
+    <value>Detalhes</value>
+  </data>
+  <data name="export_excel" xml:space="preserve">
+    <value>Excel</value>
+  </data>
+  <data name="export_pdf" xml:space="preserve">
+    <value>PDF</value>
+  </data>
+  <data name="export_meta_site" xml:space="preserve">
+    <value>Planta: {0}</value>
+  </data>
+  <data name="export_meta_search" xml:space="preserve">
+    <value>Busca: {0}</value>
+  </data>
+  <data name="export_meta_generated" xml:space="preserve">
+    <value>Gerado em: {0}</value>
+  </data>
+  <data name="site_field_timezone_hint" xml:space="preserve">
+    <value>Fuso usado para mostrar e informar datas nesta planta. O banco grava sempre em UTC; a conversão vale para as telas, os filtros de período e as exportações.</value>
+  </data>
+  <data name="site_field_active_hint" xml:space="preserve">
+    <value>Planta inativa não pode ser selecionada no login e não recebe novas operações.</value>
+  </data>
+  <data name="export" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="home_title" xml:space="preserve">
+    <value>Início</value>
+  </data>
+  <data name="home_greeting" xml:space="preserve">
+    <value>Olá, {0}</value>
+  </data>
+  <data name="home_active_site" xml:space="preserve">
+    <value>Planta ativa: {0}</value>
+  </data>
+  <data name="home_intro" xml:space="preserve">
+    <value>Use o menu lateral para navegar pelo sistema.</value>
+  </data>
+  <data name="home_card_roles" xml:space="preserve">
+    <value>Perfis de acesso e o que cada um pode fazer.</value>
+  </data>
+  <data name="home_card_users" xml:space="preserve">
+    <value>Pessoas com acesso ao sistema e suas plantas.</value>
+  </data>
+  <data name="home_card_sites" xml:space="preserve">
+    <value>Plantas atendidas por esta instalação.</value>
+  </data>
+</root>

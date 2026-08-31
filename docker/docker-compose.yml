@@ -1,0 +1,87 @@
+# Nome explícito do projeto Compose. SEM ele, o Compose usa o nome da PASTA do arquivo
+# ("docker") — igual em todo projeto derivado desta base — e um `up` aqui recriaria os
+# containers do outro projeto por cima. Ao renomear o projeto, renomeie também este nome.
+name: retaguarda-base
+
+services:
+  postgres:
+    container_name: retaguarda-base-postgres
+    image: postgres:17
+    # Inicio manual: o banco de dev sobe so quando pedido (`docker compose ... up -d postgres`)
+    # e nao volta sozinho ao reiniciar a maquina ou o Docker.
+    restart: "no"
+    environment:
+      POSTGRES_USER: saci
+      POSTGRES_PASSWORD: "H4ck3r@978"
+      POSTGRES_DB: RetaguardaBase
+    ports:
+      # Host 15433 para o fluxo de dev (app via `dotnet run` fora do container). Evitamos 5432/5433
+      # porque o WSL (PostgreSQL nativo + wslrelay) ocupa essas portas no IPv4 do host e o Docker
+      # só conseguiria o IPv6 — clientes que tentam IPv4 primeiro cairiam no WSL. 15433 também deixa
+      # a 15432 livre para outro projeto derivado desta base rodar em paralelo. O container continua
+      # escutando 5432 internamente (Host=postgres:5432).
+      - "15433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks: [retaguarda-base]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U saci -d RetaguardaBase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    container_name: retaguarda-base-web
+    restart: unless-stopped
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.web
+    ports:
+      - "8090:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      # Dentro do compose o app fala com o serviço `postgres` (rede interna).
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=RetaguardaBase;Username=saci;Password=H4ck3r@978"
+      # Persiste as chaves de Data Protection no volume nomeado (evita invalidar
+      # cookies de autenticação e tokens antiforgery a cada restart do container).
+      DataProtection__KeysPath: /app/keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../logs/web:/app/logs
+      - web-dataprotection-keys:/app/keys
+    networks: [retaguarda-base]
+
+  api:
+    container_name: retaguarda-base-api
+    restart: unless-stopped
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "8091:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=RetaguardaBase;Username=saci;Password=H4ck3r@978"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../logs/api:/app/logs
+    networks: [retaguarda-base]
+
+networks:
+  retaguarda-base:
+    driver: bridge
+    name: retaguarda-base
+
+volumes:
+  web-dataprotection-keys:
+    name: retaguarda-base-web-dataprotection-keys
+  postgres-data:
+    name: retaguarda-base-postgres-data

@@ -1,0 +1,38 @@
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@{
+    var lang = System.Globalization.CultureInfo.CurrentUICulture.Name;
+}
+<!DOCTYPE html>
+<html lang="@lang">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - @SharedLocalizer["app_title"]</title>
+
+    <link rel="preload" as="font" href="~/lib/inter/InterVariable.woff2" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Retaguarda.Web.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <a href="#main-content" class="skip-link">@SharedLocalizer["skip_to_main_content"]</a>
+
+    <main id="main-content" tabindex="-1" class="auth-shell">
+        <div class="auth-card">
+            <div class="auth-brand">
+                <partial name="_BrandIcon" />
+                <span>@SharedLocalizer["app_title"]</span>
+            </div>
+            @RenderBody()
+        </div>
+    </main>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/forms.js" asp-append-version="true"></script>
+    @* Trunca o texto das options de todos os selects (atuais e futuros) — ver §15.8. *@
+    <script src="~/js/select-truncate.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
