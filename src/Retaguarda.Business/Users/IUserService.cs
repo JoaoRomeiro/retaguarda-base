@@ -17,8 +17,11 @@ public interface IUserService
     // Lança FluentValidation.ValidationException se a entrada for inválida.
     Task<UserDto> CreateAsync(CreateUserRequest request, CancellationToken cancellationToken = default);
 
-    // False se o usuário não existe; lança ValidationException se a entrada for inválida.
-    Task<bool> UpdateAsync(UpdateUserRequest request, CancellationToken cancellationToken = default);
+    // Atualiza o perfil e o papel. Lança ValidationException se a entrada for inválida; recusa
+    // (sem exceção) as operações que deixariam o sistema inconsistente — ver UserUpdateResult.
+    // currentUserId identifica quem está editando, para barrar a autoedição destrutiva.
+    Task<UserUpdateResult> UpdateAsync(
+        UpdateUserRequest request, string? currentUserId, CancellationToken cancellationToken = default);
 
     // Exclusão lógica. Bloqueia excluir a própria conta (currentUserId).
     Task<UserDeletionResult> DeleteAsync(

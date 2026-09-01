@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Retaguarda.Data.Identity;
+using Retaguarda.Shared;
 
 namespace Retaguarda.Data.Repositories;
 
@@ -224,6 +225,21 @@ public sealed class UserRepository : IUserRepository
 
             EnsureSucceeded(await _userManager.AddToRoleAsync(user, roleName));
         }
+    }
+
+    public async Task<bool> HasOtherActiveAdminAsync(
+        string excludeUserId, CancellationToken cancellationToken = default)
+    {
+        // Join UserRoles × Roles × Users. O global query filter já exclui usuários e papéis
+        // soft-deletados; aqui sobra checar IsActive e ignorar o próprio usuário editado.
+        var adminRole = RetaguardaRoles.Admin.ToUpperInvariant();  // normalização do Identity
+
+        return await (
+            from ur in _db.UserRoles
+            join r in _db.Roles on ur.RoleId equals r.Id
+            join u in _db.Users on ur.UserId equals u.Id
+            where r.NormalizedName == adminRole && u.IsActive && u.Id != excludeUserId
+            select u.Id).AnyAsync(cancellationToken);
     }
 
     public async Task RegenerateSecurityStampAsync(

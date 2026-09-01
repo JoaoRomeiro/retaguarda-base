@@ -123,20 +123,22 @@ public sealed class UserServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_returns_false_when_user_missing()
+    public async Task UpdateAsync_returns_NotFound_when_user_missing()
     {
         var repo = BuildRepository();
         var service = BuildService(repo);
 
-        var ok = await service.UpdateAsync(new UpdateUserRequest
-        {
-            Id = "missing",
-            FullName = "X",
-            RoleName = "Picker",
-            DefaultSiteId = 1,
-        });
+        var result = await service.UpdateAsync(
+            new UpdateUserRequest
+            {
+                Id = "missing",
+                FullName = "X",
+                RoleName = "Picker",
+                DefaultSiteId = 1,
+            },
+            currentUserId: "admin");
 
-        Assert.False(ok);
+        Assert.Equal(UserUpdateResult.NotFound, result);
     }
 
     [Fact]
@@ -147,16 +149,18 @@ public sealed class UserServiceTests
         var created = await service.CreateAsync(ValidCreate());
         repo.LinkSite(created.Id, 2);  // planta 2 passa a estar associada
 
-        var ok = await service.UpdateAsync(new UpdateUserRequest
-        {
-            Id = created.Id,
-            FullName = "Operador Sr.",
-            RoleName = "Manager",
-            DefaultSiteId = 2,
-            IsActive = true,
-        });
+        var result = await service.UpdateAsync(
+            new UpdateUserRequest
+            {
+                Id = created.Id,
+                FullName = "Operador Sr.",
+                RoleName = "Manager",
+                DefaultSiteId = 2,
+                IsActive = true,
+            },
+            currentUserId: "admin");
 
-        Assert.True(ok);
+        Assert.Equal(UserUpdateResult.Updated, result);
         Assert.Equal("Manager", await repo.GetRoleNameAsync(created.Id));
         Assert.Equal(2, repo.Users[0].DefaultSiteId);
     }
@@ -168,14 +172,16 @@ public sealed class UserServiceTests
         var service = BuildService(repo);
         var created = await service.CreateAsync(ValidCreate());  // associado só à planta 1
 
-        await Assert.ThrowsAsync<ValidationException>(() => service.UpdateAsync(new UpdateUserRequest
-        {
-            Id = created.Id,
-            FullName = "Operador",
-            RoleName = "Picker",
-            DefaultSiteId = 2,  // não associada
-            IsActive = true,
-        }));
+        await Assert.ThrowsAsync<ValidationException>(() => service.UpdateAsync(
+            new UpdateUserRequest
+            {
+                Id = created.Id,
+                FullName = "Operador",
+                RoleName = "Picker",
+                DefaultSiteId = 2,  // não associada
+                IsActive = true,
+            },
+            currentUserId: "admin"));
     }
 
     // --- Desativação encerra as sessões abertas (item 1 da avaliação técnica) ---
@@ -190,16 +196,18 @@ public sealed class UserServiceTests
         refreshTokens.SeedActive(created.Id, "hash-sessao-api");
         var stampBefore = repo.Users[0].SecurityStamp;
 
-        var ok = await service.UpdateAsync(new UpdateUserRequest
-        {
-            Id = created.Id,
-            FullName = "Operador",
-            RoleName = "Picker",
-            DefaultSiteId = 1,
-            IsActive = false,
-        });
+        var result = await service.UpdateAsync(
+            new UpdateUserRequest
+            {
+                Id = created.Id,
+                FullName = "Operador",
+                RoleName = "Picker",
+                DefaultSiteId = 1,
+                IsActive = false,
+            },
+            currentUserId: "admin");
 
-        Assert.True(ok);
+        Assert.Equal(UserUpdateResult.Updated, result);
         Assert.False(repo.Users[0].IsActive);
         // Cookie da Web: o stamp mudou, então o SecurityStampValidator rejeita o principal.
         Assert.Equal(1, repo.SecurityStampRegenerations);
@@ -217,14 +225,16 @@ public sealed class UserServiceTests
         var created = await service.CreateAsync(ValidCreate());
         refreshTokens.SeedActive(created.Id, "hash-sessao-api");
 
-        await service.UpdateAsync(new UpdateUserRequest
-        {
-            Id = created.Id,
-            FullName = "Operador Sr.",
-            RoleName = "Manager",
-            DefaultSiteId = 1,
-            IsActive = true,
-        });
+        await service.UpdateAsync(
+            new UpdateUserRequest
+            {
+                Id = created.Id,
+                FullName = "Operador Sr.",
+                RoleName = "Manager",
+                DefaultSiteId = 1,
+                IsActive = true,
+            },
+            currentUserId: "admin");
 
         // Editar o perfil não pode derrubar a sessão de quem continua ativo.
         Assert.Equal(0, repo.SecurityStampRegenerations);
@@ -249,12 +259,133 @@ public sealed class UserServiceTests
             IsActive = false,
         };
 
-        await service.UpdateAsync(update);   // ativo → inativo: revoga
-        await service.UpdateAsync(update);   // já inativo: nada a fazer
+        await service.UpdateAsync(update, currentUserId: "admin");   // ativo → inativo: revoga
+        await service.UpdateAsync(update, currentUserId: "admin");   // já inativo: nada a fazer
 
         // Só a TRANSIÇÃO derruba as sessões; reeditar um inativo não repete o trabalho.
         Assert.Equal(1, repo.SecurityStampRegenerations);
         Assert.Equal(1, refreshTokens.RevokeAllCalls);
+    }
+
+    // --- Autoedição destrutiva do administrador (item 4 da avaliação técnica) ---
+
+    // Cria um admin e devolve o id. Precisa do papel "Admin" semeado no fake.
+    private static async Task<string> CreateAdminAsync(
+        FakeUserRepository repo, UserService service, string email)
+    {
+        repo.SeedRole("Admin");
+        var request = ValidCreate(email);
+        request.RoleName = "Admin";
+        var dto = await service.CreateAsync(request);
+        return dto.Id;
+    }
+
+    private static UpdateUserRequest EditOf(string id, string roleName, bool isActive) => new()
+    {
+        Id = id,
+        FullName = "Administrador",
+        RoleName = roleName,
+        DefaultSiteId = 1,
+        IsActive = isActive,
+    };
+
+    [Fact]
+    public async Task UpdateAsync_blocks_deactivating_yourself()
+    {
+        var repo = BuildRepository();
+        var service = BuildService(repo);
+        var meId = await CreateAdminAsync(repo, service, "admin@base.local");
+
+        var result = await service.UpdateAsync(EditOf(meId, "Admin", isActive: false), currentUserId: meId);
+
+        Assert.Equal(UserUpdateResult.SelfDeactivate, result);
+        Assert.True(repo.Users[0].IsActive);  // nada foi persistido
+    }
+
+    [Fact]
+    public async Task UpdateAsync_blocks_changing_your_own_role()
+    {
+        var repo = BuildRepository();
+        var service = BuildService(repo);
+        var meId = await CreateAdminAsync(repo, service, "admin@base.local");
+
+        var result = await service.UpdateAsync(EditOf(meId, "Picker", isActive: true), currentUserId: meId);
+
+        Assert.Equal(UserUpdateResult.SelfRoleChange, result);
+        Assert.Equal("Admin", await repo.GetRoleNameAsync(meId));  // papel intacto
+    }
+
+    [Fact]
+    public async Task UpdateAsync_lets_you_edit_your_own_name()
+    {
+        var repo = BuildRepository();
+        var service = BuildService(repo);
+        var meId = await CreateAdminAsync(repo, service, "admin@base.local");
+
+        // As guardas miram só desativação e troca de papel: editar o próprio nome continua livre.
+        var result = await service.UpdateAsync(EditOf(meId, "Admin", isActive: true), currentUserId: meId);
+
+        Assert.Equal(UserUpdateResult.Updated, result);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_blocks_deactivating_the_last_active_admin()
+    {
+        var repo = BuildRepository();
+        var service = BuildService(repo);
+        var adminId = await CreateAdminAsync(repo, service, "unico@base.local");
+
+        // Editado por OUTRA pessoa (as guardas de autoedição não se aplicam), mas ele é o único
+        // admin ativo: desativá-lo deixaria o sistema sem quem gerencie usuários.
+        var result = await service.UpdateAsync(
+            EditOf(adminId, "Admin", isActive: false), currentUserId: "outro-usuario");
+
+        Assert.Equal(UserUpdateResult.LastAdmin, result);
+        Assert.True(repo.Users[0].IsActive);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_blocks_removing_the_role_of_the_last_active_admin()
+    {
+        var repo = BuildRepository();
+        var service = BuildService(repo);
+        var adminId = await CreateAdminAsync(repo, service, "unico@base.local");
+
+        var result = await service.UpdateAsync(
+            EditOf(adminId, "Picker", isActive: true), currentUserId: "outro-usuario");
+
+        Assert.Equal(UserUpdateResult.LastAdmin, result);
+        Assert.Equal("Admin", await repo.GetRoleNameAsync(adminId));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_allows_demoting_an_admin_when_another_one_remains()
+    {
+        var repo = BuildRepository();
+        var service = BuildService(repo);
+        var firstId = await CreateAdminAsync(repo, service, "admin1@base.local");
+        await CreateAdminAsync(repo, service, "admin2@base.local");
+
+        // Com dois admins ativos, rebaixar um é operação legítima — a guarda não pode atrapalhar.
+        var result = await service.UpdateAsync(
+            EditOf(firstId, "Picker", isActive: true), currentUserId: "outro-usuario");
+
+        Assert.Equal(UserUpdateResult.Updated, result);
+        Assert.Equal("Picker", await repo.GetRoleNameAsync(firstId));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ignores_the_last_admin_rule_for_an_already_inactive_admin()
+    {
+        var repo = BuildRepository();
+        var service = BuildService(repo);
+        var adminId = await CreateAdminAsync(repo, service, "inativo@base.local");
+        repo.Users[0].IsActive = false;  // já estava inativo: não é o "último admin ATIVO"
+
+        var result = await service.UpdateAsync(
+            EditOf(adminId, "Picker", isActive: false), currentUserId: "outro-usuario");
+
+        Assert.Equal(UserUpdateResult.Updated, result);
     }
 
     [Fact]

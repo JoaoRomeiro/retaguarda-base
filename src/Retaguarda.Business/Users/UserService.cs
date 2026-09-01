@@ -2,6 +2,7 @@ using FluentValidation;
 using Retaguarda.Business.Users.Dtos;
 using Retaguarda.Data.Identity;
 using Retaguarda.Data.Repositories;
+using Retaguarda.Shared;
 using Retaguarda.Shared.Models;
 
 namespace Retaguarda.Business.Users;
@@ -109,15 +110,44 @@ public sealed class UserService : IUserService
         };
     }
 
-    public async Task<bool> UpdateAsync(UpdateUserRequest request, CancellationToken cancellationToken = default)
+    public async Task<UserUpdateResult> UpdateAsync(
+        UpdateUserRequest request, string? currentUserId, CancellationToken cancellationToken = default)
     {
         var user = await _repository.GetByIdAsync(request.Id, cancellationToken);
         if (user is null)
         {
-            return false;
+            return UserUpdateResult.NotFound;
         }
 
         await _updateValidator.ValidateAndThrowAsync(request, cancellationToken);
+
+        var currentRole = await _repository.GetRoleNameAsync(user.Id, cancellationToken);
+        var isSelf = currentUserId is not null
+            && string.Equals(user.Id, currentUserId, StringComparison.Ordinal);
+        var losesRole = !string.Equals(currentRole, request.RoleName, StringComparison.Ordinal);
+        var isBeingDeactivated = user.IsActive && !request.IsActive;
+
+        // Autoedição destrutiva: quem está logado se trancaria para fora, sem caminho de volta
+        // pela interface. Barrado no SERVIÇO — esconder o campo na view é conveniência, não garantia.
+        if (isSelf && isBeingDeactivated)
+        {
+            return UserUpdateResult.SelfDeactivate;
+        }
+
+        if (isSelf && losesRole)
+        {
+            return UserUpdateResult.SelfRoleChange;
+        }
+
+        // Último administrador: desativá-lo ou tirar o papel dele deixaria o sistema sem ninguém
+        // capaz de gerenciar usuários — só daria para recuperar por SQL no banco.
+        var loosensAdmin = string.Equals(currentRole, RetaguardaRoles.Admin, StringComparison.Ordinal)
+            && user.IsActive
+            && (isBeingDeactivated || losesRole);
+        if (loosensAdmin && !await _repository.HasOtherActiveAdminAsync(user.Id, cancellationToken))
+        {
+            return UserUpdateResult.LastAdmin;
+        }
 
         // Estado anterior: só a TRANSIÇÃO ativo → inativo derruba as sessões (reeditar um
         // usuário que já estava inativo não precisa revogar nada de novo).
@@ -134,7 +164,7 @@ public sealed class UserService : IUserService
             await RevokeAccessAsync(user, cancellationToken);
         }
 
-        return true;
+        return UserUpdateResult.Updated;
     }
 
     public async Task<UserDeletionResult> DeleteAsync(

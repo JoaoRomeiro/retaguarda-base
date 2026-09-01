@@ -104,28 +104,52 @@ public sealed class UsersController : Controller
     public async Task<IActionResult> Edit(
         UpdateUserRequest request, string? search, int page = 1, CancellationToken cancellationToken = default)
     {
-        bool updated;
+        UserUpdateResult result;
         try
         {
-            updated = await _userService.UpdateAsync(request, cancellationToken);
+            result = await _userService.UpdateAsync(request, _currentUser.UserId, cancellationToken);
         }
         catch (ValidationException ex)
         {
             AddValidationErrors(ex);
-            SetListState(search, page);
-            var current = await _userService.GetByIdAsync(request.Id, cancellationToken);
-            await PopulateEditOptionsAsync(current?.SiteIds ?? [], cancellationToken);
-            ViewData["Email"] = current?.Email;
-            return View(request);
+            return await RedisplayEditAsync(request, search, page, cancellationToken);
         }
 
-        if (!updated)
+        switch (result)
         {
-            return NotFound();
-        }
+            case UserUpdateResult.NotFound:
+                return NotFound();
 
-        TempData["StatusMessage"] = _localizer["user_updated"].Value;
-        return RedirectToAction(nameof(Index), new { search, page });
+            // Recusas de regra de negócio: a entrada é válida, a operação é que não pode.
+            // Volta para o formulário com a edição preservada, no mesmo caminho da validação.
+            case UserUpdateResult.SelfDeactivate:
+                ModelState.AddModelError(string.Empty, _localizer["user_self_deactivate"].Value);
+                return await RedisplayEditAsync(request, search, page, cancellationToken);
+
+            case UserUpdateResult.SelfRoleChange:
+                ModelState.AddModelError(string.Empty, _localizer["user_self_role_change"].Value);
+                return await RedisplayEditAsync(request, search, page, cancellationToken);
+
+            case UserUpdateResult.LastAdmin:
+                ModelState.AddModelError(string.Empty, _localizer["user_last_admin"].Value);
+                return await RedisplayEditAsync(request, search, page, cancellationToken);
+
+            default:
+                TempData["StatusMessage"] = _localizer["user_updated"].Value;
+                return RedirectToAction(nameof(Index), new { search, page });
+        }
+    }
+
+    // Reexibe o formulário de edição preservando o que o usuário digitou, o estado da listagem
+    // e as opções dos selects. Usado por todos os caminhos de recusa da edição.
+    private async Task<IActionResult> RedisplayEditAsync(
+        UpdateUserRequest request, string? search, int page, CancellationToken cancellationToken)
+    {
+        SetListState(search, page);
+        var current = await _userService.GetByIdAsync(request.Id, cancellationToken);
+        await PopulateEditOptionsAsync(current?.SiteIds ?? [], cancellationToken);
+        ViewData["Email"] = current?.Email;
+        return View(request);
     }
 
     [HttpGet]

@@ -176,6 +176,14 @@ internal sealed class FakeUserRepository : IUserRepository
         return Task.CompletedTask;
     }
 
+    public Task<bool> HasOtherActiveAdminAsync(
+        string excludeUserId, CancellationToken cancellationToken = default)
+        => Task.FromResult(_users.Any(u =>
+            u.Id != excludeUserId
+            && !u.IsDeleted
+            && u.IsActive
+            && string.Equals(_roleByUser.GetValueOrDefault(u.Id), "Admin", StringComparison.Ordinal)));
+
     // Simula a regeneração do stamp: o valor muda a cada chamada, como faz o UserManager.
     public Task RegenerateSecurityStampAsync(
         ApplicationUser user, CancellationToken cancellationToken = default)
