@@ -68,6 +68,8 @@ Fonte raiz: [ASP.NET Core security topics](https://learn.microsoft.com/en-us/asp
 | `X-Content-Type-Options: nosniff` | ✅ | Middleware |
 | Anti-clickjacking (`X-Frame-Options` + `frame-ancestors`) | ✅ | Middleware |
 | `Referrer-Policy` | ✅ | Middleware (`no-referrer`) |
+| `Permissions-Policy` | ✅ | Middleware (2026-09-01, item 8 da avaliação técnica): `camera=(), microphone=(), geolocation=()`. Configurável por host, como a CSP |
+| `Cache-Control: no-store` nas respostas autenticadas | ✅ | Web (2026-09-01): filtro global `ResponseCacheAttribute` no MVC — fica no filtro, e **não** no middleware de headers, para não matar o cache dos arquivos estáticos |
 | Não vazar tecnologia do servidor (`Server` header) | ✅ | `Kestrel.AddServerHeader = false` em Web e Api |
 
 ### 4.2 HTTPS e HSTS
@@ -113,11 +115,13 @@ Fonte: [Authentication overview](https://learn.microsoft.com/en-us/aspnet/core/s
 | Prática | Estado | Onde está / ação |
 |---|---|---|
 | Identity configurado com store EF Core | ✅ | `AddIdentity<ApplicationUser, ApplicationRole>` + `AddEntityFrameworkStores` + `AddSignInManager<ApplicationSignInManager>` (bloqueia inativos). `ApplicationUser`/`ApplicationRole` estendem o Identity com auditoria + soft delete |
-| Política de senha forte | ✅ | 8+ caracteres, dígito, maiúscula, minúscula, não-alfanumérico; e-mail único |
+| Política de senha forte | ✅ | 8+ caracteres, dígito, maiúscula, minúscula, não-alfanumérico; e-mail único. Teto de 128 caracteres (2026-09-01) nos dois hosts, aplicado ANTES da verificação de hash — senha gigante só queima CPU no PBKDF2 |
+| Lockout de conta declarado explicitamente | ✅ | 2026-09-01: 5 tentativas / 5 min nos dois `Program.cs`. São os mesmos valores do default do Identity, escritos de propósito — configuração de segurança implícita é configuração que ninguém revisa. Protege UMA conta; a proteção volumétrica por IP é o rate limiting (§10) |
 | Desativar a conta encerra as sessões já abertas | ✅ | Corrigido em 2026-08-31 (item 1 da avaliação técnica). Bloquear o próximo login não bastava: o cookie e o refresh token emitidos continuavam válidos por horas, porque `UserManager.UpdateAsync` não altera o security stamp. `UserService.UpdateAsync` detecta a transição ativo → inativo e chama `IUserRepository.RegenerateSecurityStampAsync` (o `SecurityStampValidator` passa a rejeitar o cookie, em até 30 min — `ValidationInterval` default) + `IRefreshTokenRepository.RevokeAllForUserAsync` (derruba a sessão da Api). A **exclusão** já estava coberta pelo soft delete: o global query filter faz o usuário sumir e o principal é rejeitado pelo mesmo caminho |
 | Pipeline com `UseAuthentication`/`UseAuthorization` na ordem correta | ✅ | Web e Api (Api: `UseAuthentication` + `UseAuthorization`, etapa 3.1.a/2026-06-05) |
 | Telas de login / fluxo de autenticação | ⚠️ | Parcial (etapa 2.1a, 2026-05-24): login + logout por cookie funcionando. Recuperação de senha = etapa 2.1b |
 | JWT na API | ✅ | Fluxo em 2 etapas (login → select-site) emitindo access + refresh token; `AddJwtBearer` + `IdentityCore` na Api; refresh token persistido (hash) em `[identity].[RefreshTokens]`; `refresh` com rotação (revoga o usado, reemite o par, revalida usuário/planta) e `logout` (revogação, restrito ao dono do token) |
+| Detecção de reuso de refresh token | ✅ | 2026-09-01 (item 5 da avaliação técnica): reapresentar um token **revogado** revoga toda a sessão do usuário e loga `LogWarning` com `UserId` (nunca o token nem o hash) — não dá para saber se quem rotacionou foi o dono ou o ladrão, então derruba os dois e força login novo. Token apenas **expirado** não conta como reuso: é validade vencida de cliente offline, e derrubar a sessão deslogaria gente legítima |
 
 ---
 

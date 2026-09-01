@@ -18,6 +18,9 @@ namespace Retaguarda.Api.Controllers;
 [Route("api/auth")]
 public sealed class AuthController : ApiControllerBase
 {
+    // Mesmo teto da Web (ver LoginViewModel) e dos validators do cadastro de usuários.
+    private const int MaxPasswordLength = 128;
+
     private readonly IAuthenticationService _authentication;
     private readonly IStringLocalizer<AuthController> _localizer;
 
@@ -34,9 +37,11 @@ public sealed class AuthController : ApiControllerBase
     public async Task<IActionResult> Login(
         [FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
+        // Teto de tamanho ANTES de chamar o fluxo: senha gigante só queima CPU no hash (PBKDF2).
         if (request is null
             || string.IsNullOrWhiteSpace(request.Email)
-            || string.IsNullOrWhiteSpace(request.Password))
+            || string.IsNullOrWhiteSpace(request.Password)
+            || request.Password.Length > MaxPasswordLength)
         {
             return ValidationError();
         }

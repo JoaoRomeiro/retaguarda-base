@@ -26,6 +26,8 @@ public sealed class CreateUserRequestValidator : AbstractValidator<CreateUserReq
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("user_password_required")
             .MinimumLength(8).WithMessage("user_password_policy")
+            // Teto: senha muito longa só serve para queimar CPU no hash (PBKDF2 do Identity).
+            .MaximumLength(128).WithMessage("password_too_long")
             .Matches("[A-Z]").WithMessage("user_password_policy")
             .Matches("[a-z]").WithMessage("user_password_policy")
             .Matches("[0-9]").WithMessage("user_password_policy")

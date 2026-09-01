@@ -54,6 +54,17 @@ sudo ufw allow 443/tcp
 sudo ufw enable
 ```
 
+> **Só o Caddy pode ficar exposto.** No `docker-compose.prod.yml`, `web`, `api` e `postgres` não
+> publicam porta no host de propósito — falam entre si pela rede interna do Docker. Não acrescente
+> `ports:` a eles, e não libere as portas 8080/5432 no firewall.
+>
+> O motivo não é só "superfície de ataque": os dois apps confiam no cabeçalho `X-Forwarded-For`
+> de qualquer origem (`KnownProxies` limpo, em ambos os `Program.cs`), porque assumem que só o
+> Caddy os alcança. Se a porta do app for publicada, qualquer cliente forja o IP — os logs passam
+> a mentir e o **rate limiting por IP dos endpoints de autenticação vira decoração**, já que basta
+> trocar o cabeçalho a cada requisição para ter cota infinita. Se um dia precisar expor um app
+> direto, preencha `KnownProxies`/`KnownIPNetworks` antes.
+
 ### 3.2. Liberar a porta 443
 Se já houver outra aplicação publicando 80/443 nesta VPS, pare-a antes (na pasta dela):
 ```bash

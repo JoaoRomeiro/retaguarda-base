@@ -16,7 +16,7 @@ namespace Retaguarda.Web.Controllers;
 // Cadastro de plantas (Site). Restrito a Admin — configuração de infraestrutura do tenant.
 // O estado da listagem (busca + página) é propagado por todo o fluxo para que o usuário
 // volte sempre ao mesmo ponto após criar/editar/excluir/cancelar.
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = RetaguardaRoles.Admin)]
 public sealed class SitesController : Controller
 {
     private const int PageSize = 10;

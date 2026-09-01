@@ -56,6 +56,26 @@ public class SecurityHeadersMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_NegaCameraMicrofoneEGeolocalizacaoPorPadrao()
+    {
+        var (context, _) = await RunAsync(new SecurityHeadersOptions());
+
+        Assert.Equal(
+            "camera=(), microphone=(), geolocation=()",
+            context.Response.Headers["Permissions-Policy"].ToString());
+    }
+
+    [Fact]
+    public async Task InvokeAsync_UsaPermissionsPolicyConfigurada()
+    {
+        var options = new SecurityHeadersOptions { PermissionsPolicy = "camera=(self)" };
+
+        var (context, _) = await RunAsync(options);
+
+        Assert.Equal("camera=(self)", context.Response.Headers["Permissions-Policy"].ToString());
+    }
+
+    [Fact]
     public async Task InvokeAsync_ChamaProximoMiddleware()
     {
         var (_, nextCalled) = await RunAsync(new SecurityHeadersOptions());

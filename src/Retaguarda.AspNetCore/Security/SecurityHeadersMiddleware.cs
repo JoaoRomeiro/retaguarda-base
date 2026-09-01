@@ -19,6 +19,13 @@ public sealed class SecurityHeadersOptions
     /// Valor do header Referrer-Policy. Default 'no-referrer' (sistema interno).
     /// </summary>
     public string ReferrerPolicy { get; set; } = "no-referrer";
+
+    /// <summary>
+    /// Valor do header Permissions-Policy. Default desliga câmera, microfone e geolocalização:
+    /// nada na plataforma usa esses recursos, e negar por padrão vale também para o que for
+    /// embutido numa página (iframe, script de terceiro).
+    /// </summary>
+    public string PermissionsPolicy { get; set; } = "camera=(), microphone=(), geolocation=()";
 }
 
 // Middleware que aplica os headers de segurança a TODAS as respostas.
@@ -50,6 +57,9 @@ public sealed class SecurityHeadersMiddleware
 
         // Política de Referer — não propagar URL interna em navegação externa.
         headers["Referrer-Policy"] = _options.ReferrerPolicy;
+
+        // Recursos do navegador negados por padrão (câmera, microfone, geolocalização).
+        headers["Permissions-Policy"] = _options.PermissionsPolicy;
 
         return _next(context);
     }

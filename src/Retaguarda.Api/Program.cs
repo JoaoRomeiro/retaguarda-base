@@ -88,6 +88,12 @@ try
         options.Password.RequireUppercase = true;
         options.Password.RequireNonAlphanumeric = true;
         options.User.RequireUniqueEmail = true;
+
+        // Lockout por conta: mesmos valores do Web e do default do Identity, explícitos para
+        // ficarem revisáveis. O AuthenticationService chama AccessFailedAsync a cada senha errada.
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+        options.Lockout.AllowedForNewUsers = true;
     })
     .AddRoles<ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -180,7 +186,13 @@ try
 
     // Atrás do proxy reverso (Caddy) e da Cloudflare: aplica esquema/IP reais (X-Forwarded-*) ANTES
     // de tudo — esquema HTTPS e IP do cliente corretos nos logs. A API só é acessível via Caddy na
-    // rede interna do Docker; por isso confiamos nos proxies (listas limpas). Ver docs/deploy.md.
+    // rede interna do Docker; por isso confiamos nos proxies (listas limpas).
+    //
+    // ATENÇÃO: listas limpas significam "confio no X-Forwarded-For venha de onde vier". Isso só é
+    // seguro enquanto a porta da Api NÃO estiver publicada na internet. Se publicar, qualquer
+    // cliente forja o IP: os logs passam a mentir e o rate limiting por IP (AuthRateLimiting)
+    // vira decoração — basta trocar o cabeçalho a cada requisição para ter cota infinita.
+    // Ver docs/deploy.md.
     var forwardedOptions = new ForwardedHeadersOptions
     {
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,

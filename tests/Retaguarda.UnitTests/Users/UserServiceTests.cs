@@ -402,6 +402,32 @@ public sealed class UserServiceTests
     }
 
     [Fact]
+    public async Task DeleteAsync_blocks_removing_the_last_active_admin()
+    {
+        var repo = BuildRepository();
+        var service = BuildService(repo);
+        var adminId = await CreateAdminAsync(repo, service, "unico@base.local");
+
+        var result = await service.DeleteAsync(adminId, currentUserId: "outro-usuario");
+
+        Assert.Equal(UserDeletionResult.LastAdmin, result);
+        Assert.False(repo.Users[0].IsDeleted);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_allows_removing_an_admin_when_another_one_remains()
+    {
+        var repo = BuildRepository();
+        var service = BuildService(repo);
+        var firstId = await CreateAdminAsync(repo, service, "admin1@base.local");
+        await CreateAdminAsync(repo, service, "admin2@base.local");
+
+        var result = await service.DeleteAsync(firstId, currentUserId: "outro-usuario");
+
+        Assert.Equal(UserDeletionResult.Deleted, result);
+    }
+
+    [Fact]
     public async Task DeleteAsync_returns_NotFound_when_missing()
     {
         var repo = BuildRepository();

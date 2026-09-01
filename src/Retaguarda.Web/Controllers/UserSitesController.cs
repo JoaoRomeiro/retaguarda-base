@@ -13,7 +13,7 @@ namespace Retaguarda.Web.Controllers;
 // Sub-CRUD das plantas associadas a um usuário (R/C/D). Restrito a Admin.
 // Carrega dois contextos de estado: o do index de Usuários (userSearch/userPage), usado pelo
 // botão Voltar, e o próprio (search/page) da listagem de associação.
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = RetaguardaRoles.Admin)]
 public sealed class UserSitesController : Controller
 {
     private const int PageSize = 10;

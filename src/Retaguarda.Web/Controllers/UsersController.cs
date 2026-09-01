@@ -14,7 +14,7 @@ namespace Retaguarda.Web.Controllers;
 
 // Cadastro de usuários (User). Restrito a Admin. Um usuário tem uma Role e 1..N plantas,
 // com uma planta padrão. O estado da listagem (busca + página) é propagado por todo o fluxo.
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = RetaguardaRoles.Admin)]
 public sealed class UsersController : Controller
 {
     private const int PageSize = 10;
@@ -191,6 +191,10 @@ public sealed class UsersController : Controller
 
             case UserDeletionResult.SelfDelete:
                 TempData["ErrorMessage"] = _localizer["user_delete_self"].Value;
+                break;
+
+            case UserDeletionResult.LastAdmin:
+                TempData["ErrorMessage"] = _localizer["user_last_admin_delete"].Value;
                 break;
         }
 

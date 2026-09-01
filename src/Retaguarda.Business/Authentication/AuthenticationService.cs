@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Retaguarda.Business.Authentication.Dtos;
 using Retaguarda.Business.Users;
@@ -21,19 +22,22 @@ public sealed class AuthenticationService : IAuthenticationService
     private readonly ITokenService _tokenService;
     private readonly IRefreshTokenRepository _refreshTokens;
     private readonly JwtOptions _jwtOptions;
+    private readonly ILogger<AuthenticationService> _logger;
 
     public AuthenticationService(
         UserManager<ApplicationUser> userManager,
         ISiteSelectionService siteSelection,
         ITokenService tokenService,
         IRefreshTokenRepository refreshTokens,
-        IOptions<JwtOptions> jwtOptions)
+        IOptions<JwtOptions> jwtOptions,
+        ILogger<AuthenticationService> logger)
     {
         _userManager = userManager;
         _siteSelection = siteSelection;
         _tokenService = tokenService;
         _refreshTokens = refreshTokens;
         _jwtOptions = jwtOptions.Value;
+        _logger = logger;
     }
 
     public async Task<LoginOutcome> LoginAsync(
@@ -104,6 +108,7 @@ public sealed class AuthenticationService : IAuthenticationService
         var existing = await _refreshTokens.GetActiveByHashAsync(hash, cancellationToken);
         if (existing is null)
         {
+            await DetectReuseAsync(hash, cancellationToken);
             return RefreshOutcome.Invalid();
         }
 
@@ -144,6 +149,28 @@ public sealed class AuthenticationService : IAuthenticationService
 
         await _refreshTokens.RevokeAsync(existing, cancellationToken);
         return LogoutOutcome.Success();
+    }
+
+    // Um hash que existe mas NÃO está ativo é sinal de token vazado: o legítimo já rotacionou
+    // (revogando este) e alguém está tentando usar a cópia antiga — ou o contrário, e quem
+    // rotacionou foi o atacante. Não dá para saber qual dos dois é o dono, então derruba a
+    // sessão inteira e força login novo. Só REVOGADO conta: token apenas expirado é validade
+    // vencida, não reuso.
+    private async Task DetectReuseAsync(string hash, CancellationToken cancellationToken)
+    {
+        var known = await _refreshTokens.GetByHashAsync(hash, cancellationToken);
+        if (known?.RevokedAt is null)
+        {
+            return;
+        }
+
+        var revoked = await _refreshTokens.RevokeAllForUserAsync(known.UserId, cancellationToken);
+
+        // Nunca logar o token nem o hash: o hash identifica a sessão e é comparável.
+        _logger.LogWarning(
+            "Refresh token reuse detected for user {UserId}; revoked {RevokedCount} active tokens",
+            known.UserId,
+            revoked);
     }
 
     // Monta o access token e a entidade do novo refresh token (hash + vínculo usuário/planta +

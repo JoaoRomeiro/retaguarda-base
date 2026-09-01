@@ -28,6 +28,11 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
             cancellationToken);
     }
 
+    public async Task<RefreshToken?> GetByHashAsync(
+        string tokenHash, CancellationToken cancellationToken = default)
+        => await _db.RefreshTokens.FirstOrDefaultAsync(
+            t => t.TokenHash == tokenHash, cancellationToken);
+
     public async Task RevokeAsync(RefreshToken token, CancellationToken cancellationToken = default)
     {
         token.RevokedAt = DateTime.UtcNow;

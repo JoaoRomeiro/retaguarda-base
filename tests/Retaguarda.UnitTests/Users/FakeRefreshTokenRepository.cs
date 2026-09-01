@@ -37,6 +37,30 @@ internal sealed class FakeRefreshTokenRepository : IRefreshTokenRepository
         => Task.FromResult(_tokens.FirstOrDefault(t =>
             t.TokenHash == tokenHash && t.RevokedAt == null && t.ExpiresAt > DateTime.UtcNow));
 
+    // Sem filtrar estado: é o que a detecção de reuso consulta.
+    public Task<RefreshToken?> GetByHashAsync(
+        string tokenHash, CancellationToken cancellationToken = default)
+        => Task.FromResult(_tokens.FirstOrDefault(t => t.TokenHash == tokenHash));
+
+    // Semeia um token JÁ REVOGADO (cenário de reuso: o legítimo rotacionou e alguém tenta o antigo).
+    public void SeedRevoked(string userId, string tokenHash, int siteId = 1)
+    {
+        SeedActive(userId, tokenHash, siteId);
+        _tokens[^1].RevokedAt = DateTime.UtcNow.AddMinutes(-1);
+    }
+
+    // Semeia um token EXPIRADO mas nunca revogado (validade vencida — não é reuso).
+    public void SeedExpired(string userId, string tokenHash, int siteId = 1)
+        => _tokens.Add(new RefreshToken
+        {
+            Id = _tokens.Count + 1,
+            TokenHash = tokenHash,
+            UserId = userId,
+            SiteId = siteId,
+            CreatedAt = DateTime.UtcNow.AddDays(-30),
+            ExpiresAt = DateTime.UtcNow.AddDays(-1),
+        });
+
     public Task RevokeAsync(RefreshToken token, CancellationToken cancellationToken = default)
     {
         token.RevokedAt = DateTime.UtcNow;

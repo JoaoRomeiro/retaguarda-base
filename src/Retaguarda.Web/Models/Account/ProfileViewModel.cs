@@ -11,12 +11,14 @@ public sealed class ProfileViewModel
     public string RoleName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "field_required")]
+    // Teto antes de qualquer verificação de hash (ver LoginViewModel).
+    [StringLength(128, ErrorMessage = "password_too_long")]
     [DataType(DataType.Password)]
     public string CurrentPassword { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "field_required")]
     [RegularExpression(
-        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$",
+        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,128}$",
         ErrorMessage = "password_policy")]
     [DataType(DataType.Password)]
     public string NewPassword { get; set; } = string.Empty;

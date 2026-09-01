@@ -65,6 +65,16 @@ try
             // Resolve o fuso da planta ativa antes da action: as views convertem datas de forma
             // síncrona e não podem esperar por uma consulta.
             options.Filters.Add<SiteTimeZoneFilter>();
+
+            // Nenhuma resposta do MVC vai para cache: as telas mostram dado por usuário e por
+            // planta ativa, e o histórico do navegador não pode reexibi-las depois do logout.
+            // Fica no filtro (e não no middleware de headers) para NÃO afetar os arquivos
+            // estáticos, que devem continuar cacheáveis.
+            options.Filters.Add(new ResponseCacheAttribute
+            {
+                NoStore = true,
+                Location = ResponseCacheLocation.None,
+            });
         })
         .AddViewLocalization()
         .AddDataAnnotationsLocalization(options =>
@@ -114,6 +124,13 @@ try
         options.Password.RequireNonAlphanumeric = true;
 
         options.User.RequireUniqueEmail = true;
+
+        // Lockout por conta: mesmos valores do default do Identity, declarados aqui de propósito.
+        // Configuração de segurança implícita é configuração que ninguém revisa. Isto protege UMA
+        // conta; a proteção volumétrica por IP é o rate limiting (AuthRateLimiting).
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+        options.Lockout.AllowedForNewUsers = true;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager<ApplicationSignInManager>()  // bloqueia login de usuários inativos
@@ -223,6 +240,11 @@ try
     // Atrás do proxy reverso (Caddy) e da Cloudflare: aplica esquema/IP reais (X-Forwarded-*) ANTES
     // de tudo, para que HTTPS, cookies Secure, redirect e logs fiquem corretos. Os apps só são
     // acessíveis via Caddy na rede interna do Docker; por isso confiamos nos proxies (listas limpas).
+    //
+    // ATENÇÃO: listas limpas significam "confio no X-Forwarded-For venha de onde vier". Isso só é
+    // seguro enquanto a porta do app NÃO estiver publicada na internet. Se publicar, qualquer
+    // cliente forja o IP: os logs passam a mentir e o rate limiting por IP (AuthRateLimiting)
+    // vira decoração — basta trocar o cabeçalho a cada requisição para ter cota infinita.
     // Ver docs/deploy.md.
     var forwardedOptions = new ForwardedHeadersOptions
     {

@@ -486,11 +486,17 @@
   <data name="user_field_active" xml:space="preserve">
     <value>Ativo</value>
   </data>
+  <data name="password_too_long" xml:space="preserve">
+    <value>A senha deve ter no máximo 128 caracteres.</value>
+  </data>
   <data name="user_self_deactivate" xml:space="preserve">
     <value>Você não pode desativar a sua própria conta. Peça a outro administrador.</value>
   </data>
   <data name="user_self_role_change" xml:space="preserve">
     <value>Você não pode alterar o seu próprio papel. Peça a outro administrador.</value>
+  </data>
+  <data name="user_last_admin_delete" xml:space="preserve">
+    <value>Este é o último administrador ativo. Promova outro usuário a administrador antes de excluí-lo.</value>
   </data>
   <data name="user_last_admin" xml:space="preserve">
     <value>Este é o último administrador ativo. Promova outro usuário a administrador antes de desativá-lo ou alterar o papel dele.</value>

@@ -17,7 +17,7 @@ public sealed class ResetPasswordViewModel
 
     [Required(ErrorMessage = "field_required")]
     [RegularExpression(
-        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$",
+        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,128}$",
         ErrorMessage = "password_policy")]
     [DataType(DataType.Password)]
     public string Password { get; set; } = string.Empty;

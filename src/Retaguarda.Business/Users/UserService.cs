@@ -182,6 +182,17 @@ public sealed class UserService : IUserService
             return UserDeletionResult.NotFound;
         }
 
+        // Simétrico à guarda do UpdateAsync: excluir o último admin ativo deixaria o sistema sem
+        // ninguém capaz de gerenciar usuários. Admin já inativo não conta — o sistema já está sem
+        // ele, e a recuperação nesse caso passa pelo banco de qualquer forma.
+        var role = await _repository.GetRoleNameAsync(user.Id, cancellationToken);
+        if (string.Equals(role, RetaguardaRoles.Admin, StringComparison.Ordinal)
+            && user.IsActive
+            && !await _repository.HasOtherActiveAdminAsync(user.Id, cancellationToken))
+        {
+            return UserDeletionResult.LastAdmin;
+        }
+
         await _repository.DeleteAsync(user, cancellationToken);
         return UserDeletionResult.Deleted;
     }

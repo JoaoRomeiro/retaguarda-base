@@ -14,6 +14,10 @@ public interface IRefreshTokenRepository
     // Busca um refresh token ativo (não revogado e não expirado) pelo hash. Null se não existir.
     Task<RefreshToken?> GetActiveByHashAsync(string tokenHash, CancellationToken cancellationToken = default);
 
+    // Busca um refresh token pelo hash SEM filtrar estado (revogado/expirado entram).
+    // Usado para detectar REUSO: um hash que existe mas não está ativo indica token vazado.
+    Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken cancellationToken = default);
+
     // Revoga um token (logout). Marca RevokedAt e persiste.
     Task RevokeAsync(RefreshToken token, CancellationToken cancellationToken = default);
 

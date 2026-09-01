@@ -12,7 +12,7 @@ namespace Retaguarda.Web.Controllers;
 // Cadastro de acessos (Role). Restrito a Admin — configuração de segurança do tenant.
 // O estado da listagem (busca + página) é propagado por todo o fluxo para que o usuário
 // volte sempre ao mesmo ponto após criar/editar/excluir/cancelar.
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = RetaguardaRoles.Admin)]
 public sealed class RolesController : Controller
 {
     private const int PageSize = 10;

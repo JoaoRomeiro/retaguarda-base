@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Retaguarda.Data.Entities;
+using Retaguarda.Shared;
 using Retaguarda.Data.Identity;
 
 namespace Retaguarda.Web.Infrastructure;
@@ -33,9 +34,9 @@ public static class ProductionDataSeeder
         var db = services.GetRequiredService<ApplicationDbContext>();
 
         // Papel Admin (interno).
-        if (await roleManager.FindByNameAsync("Admin") is null)
+        if (await roleManager.FindByNameAsync(RetaguardaRoles.Admin) is null)
         {
-            await roleManager.CreateAsync(new ApplicationRole("Admin")
+            await roleManager.CreateAsync(new ApplicationRole(RetaguardaRoles.Admin)
             {
                 Description = "Acesso amplo ao sistema, incluindo cadastros e usuários",
                 IsSystem = true,
@@ -76,7 +77,9 @@ public static class ProductionDataSeeder
                 return;
             }
 
-            logger.LogInformation("Usuário admin de produção criado: {Email}", email);
+            // Sem o e-mail: é dado pessoal e o log fica 30 dias em arquivo (LGPD). O UserId basta
+            // para correlacionar; quem operou o deploy já conhece o e-mail (veio do .env).
+            logger.LogInformation("Usuário admin de produção criado: {UserId}", user.Id);
         }
 
         // Vínculo com a planta (N:N) e o papel Admin (idempotentes).
@@ -86,9 +89,9 @@ public static class ProductionDataSeeder
             await db.SaveChangesAsync();
         }
 
-        if (!await userManager.IsInRoleAsync(user, "Admin"))
+        if (!await userManager.IsInRoleAsync(user, RetaguardaRoles.Admin))
         {
-            await userManager.AddToRoleAsync(user, "Admin");
+            await userManager.AddToRoleAsync(user, RetaguardaRoles.Admin);
         }
     }
 }

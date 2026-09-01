@@ -90,13 +90,13 @@ public sealed class AccountController : Controller
                 }
 
                 await _signInManager.SignInAsync(user, properties);
-                _logger.LogInformation("User {Email} signed in", model.Email);
+                _logger.LogInformation("User {UserId} signed in", user.Id);
                 return RedirectToLocal(model.ReturnUrl);
             }
 
             if (check.IsLockedOut)
             {
-                _logger.LogWarning("User {Email} locked out", model.Email);
+                _logger.LogWarning("User {UserId} locked out", user.Id);
             }
         }
 
@@ -196,7 +196,7 @@ public sealed class AccountController : Controller
                     resetUrl);
 
                 await _emailSender.SendEmailAsync(model.Email, subject, body);
-                _logger.LogInformation("Password reset link sent for {Email}", model.Email);
+                _logger.LogInformation("Password reset link sent for user {UserId}", user.Id);
             }
         }
         else
@@ -258,7 +258,7 @@ public sealed class AccountController : Controller
         var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
         if (result.Succeeded)
         {
-            _logger.LogInformation("Password reset succeeded for {Email}", model.Email);
+            _logger.LogInformation("Password reset succeeded for user {UserId}", user.Id);
             return RedirectToAction(nameof(ResetPasswordConfirmation));
         }
 

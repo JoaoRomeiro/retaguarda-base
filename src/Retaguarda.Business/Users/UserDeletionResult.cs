@@ -14,4 +14,7 @@ public enum UserDeletionResult
 
     // Tentativa de excluir a própria conta (bloqueada).
     SelfDelete,
+
+    // A exclusão deixaria o sistema sem nenhum administrador ativo.
+    LastAdmin,
 }

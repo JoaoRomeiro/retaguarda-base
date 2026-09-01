@@ -11,6 +11,8 @@ public sealed class LoginViewModel
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "field_required")]
+    // Teto antes de qualquer verificação de hash: senha gigante só queima CPU do servidor.
+    [StringLength(128, ErrorMessage = "password_too_long")]
     [DataType(DataType.Password)]
     public string Password { get; set; } = string.Empty;
 

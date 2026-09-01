@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Retaguarda.Data.Entities;
+using Retaguarda.Shared;
 using Retaguarda.Data.Identity;
 
 namespace Retaguarda.Web.Infrastructure;
@@ -16,7 +17,7 @@ public static class DevelopmentDataSeeder
     // Apenas o perfil Admin é pré-cadastrado; os papéis de cada projeto entram pelo CRUD de Papéis.
     private static readonly (string Name, string Description)[] SystemRoles =
     [
-        ("Admin", "Acesso amplo ao sistema, incluindo cadastros e usuários"),
+        (RetaguardaRoles.Admin, "Acesso amplo ao sistema, incluindo cadastros e usuários"),
     ];
 
     public static async Task SeedAsync(IServiceProvider services)
@@ -111,9 +112,9 @@ public static class DevelopmentDataSeeder
         }
 
         // Garante o vínculo com o papel Admin (idempotente — corrige bancos antigos).
-        if (!await userManager.IsInRoleAsync(user, "Admin"))
+        if (!await userManager.IsInRoleAsync(user, RetaguardaRoles.Admin))
         {
-            await userManager.AddToRoleAsync(user, "Admin");
+            await userManager.AddToRoleAsync(user, RetaguardaRoles.Admin);
             logger.LogInformation("Development seed user added to Admin role: {Email}", AdminEmail);
         }
     }
