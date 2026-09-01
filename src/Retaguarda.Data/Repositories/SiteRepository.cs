@@ -22,10 +22,14 @@ public sealed class SiteRepository : ISiteRepository
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            // LIKE explícito (EF.Functions) evita o analyzer de StringComparison e
-            // mantém a busca traduzível para SQL; collation CI_AI já é case-insensitive.
-            var term = $"%{search.Trim()}%";
-            query = query.Where(s => EF.Functions.Like(s.Name, term) || EF.Functions.Like(s.Code, term));
+            // ILIKE (operador do PostgreSQL, exposto pelo Npgsql): busca traduzível para SQL e
+            // insensível a maiúsculas. NÃO trocar por Like: a collation padrão do Postgres é
+            // case-sensitive, e "matriz" deixaria de encontrar "Matriz". O termo é escapado
+            // (SearchPattern) para que % e _ digitados valham como texto, não como curinga.
+            var term = SearchPattern.Contains(search);
+            query = query.Where(s =>
+                EF.Functions.ILike(s.Name, term, SearchPattern.EscapeCharacter)
+                || EF.Functions.ILike(s.Code, term, SearchPattern.EscapeCharacter));
         }
 
         var total = await query.CountAsync(cancellationToken);

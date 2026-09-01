@@ -37,7 +37,17 @@ contratos sem tipos do `Data` (ex.: `ICurrentUserService`) ficam no `Shared`.
 - **Herdar `AuditableEntity`** → ganha auditoria (`CreatedAt/CreatedById/UpdatedAt/UpdatedById`) e soft delete (`IsDeleted/DeletedAt/DeletedById`). Esses campos são carimbados automaticamente pelo `AuditableEntityInterceptor` no `SaveChanges` — **não** preencher na mão.
 - **Soft delete em todos os cadastros:** nunca exclusão física. O `ApplicationDbContext` aplica `HasQueryFilter(e => !e.IsDeleted)`.
 - **Índice único filtrado** para campos únicos: `HasIndex(x => x.Code).IsUnique().HasFilter("\"IsDeleted\" = false")` — assim o valor é único só entre ativos e pode ser reutilizado após exclusão lógica.
-- **Repositório** encapsula EF e persiste por operação. Métodos típicos: `GetByIdAsync`, `ListAsync(search, page, pageSize)` (busca + paginação com `EF.Functions.Like`), `CodeExistsAsync(code, excludeId)` (checa só ativos), `AddAsync`, `UpdateAsync`, `DeleteAsync` (chama `Remove`; o interceptor converte em soft delete).
+- **Repositório** encapsula EF e persiste por operação. Métodos típicos: `GetByIdAsync`, `ListAsync(search, page, pageSize)` (busca + paginação), `CodeExistsAsync(code, excludeId)` (checa só ativos), `AddAsync`, `UpdateAsync`, `DeleteAsync` (chama `Remove`; o interceptor converte em soft delete).
+- **Busca da listagem: `EF.Functions.ILike` + `SearchPattern.Contains`** — nunca `EF.Functions.Like`, nunca concatenar `%termo%` à mão:
+
+  ```csharp
+  var term = SearchPattern.Contains(search);
+  query = query.Where(x =>
+      EF.Functions.ILike(x.Name, term, SearchPattern.EscapeCharacter)
+      || EF.Functions.ILike(x.Code, term, SearchPattern.EscapeCharacter));
+  ```
+
+  Dois motivos, os dois já custaram bug nesta base: (1) a collation padrão do PostgreSQL é **case-sensitive**, então com `Like` a busca por `matriz` não encontra `Matriz` (`ILIKE` resolve); (2) `%` e `_` digitados pelo usuário são **curingas** — sem o escape do `SearchPattern`, buscar `%` devolve a tabela inteira. **Isso não é pego por teste unitário:** os fakes usam LINQ em memória, que é case-insensitive e trata os curingas como texto. Valide contra o Postgres real.
 - **Datas sempre em UTC.**
 - **Toda nova entidade gera migration** (`dotnet ef migrations add <Nome> --project src/Retaguarda.Data --startup-project src/Retaguarda.Web`).
 
@@ -142,7 +152,7 @@ Partial de formulário-no-card). Não propague duplicação: o 2º uso é o gati
 ## 8. Definition of Done de um CRUD novo
 
 - [ ] Entidade + migration; soft delete e índice único filtrado (se houver campo único) configurados.
-- [ ] Repositório (interface no `Data`) com busca + paginação + checagem de unicidade.
+- [ ] Repositório (interface no `Data`) com busca (`ILike` + `SearchPattern`, validada contra o Postgres real) + paginação + checagem de unicidade.
 - [ ] DTOs + validadores (mensagens como chaves) + serviço (valida e lança `ValidationException`, usa Mapster, retorna `PagedResult<T>`).
 - [ ] Controller `[Authorize(Roles=…)]`, antiforgery nos POST, propagação de `search`/`page`, tradução de validação para `ModelState` localizado.
 - [ ] Views no padrão do §6 (card, grid, selects, paginação no footer, estado da listagem, loading), sem `style=""` inline; selects obrigatórios `int` usam placeholder `value="0"` + mensagem localizada via validator.
