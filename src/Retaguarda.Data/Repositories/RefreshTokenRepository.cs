@@ -42,4 +42,16 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
         _db.RefreshTokens.Add(newToken);
         await _db.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<int> RevokeAllForUserAsync(
+        string userId, CancellationToken cancellationToken = default)
+    {
+        // UPDATE em lote: não carrega as entidades (a sessão pode ter dezenas de tokens).
+        // RefreshToken não é auditável nem soft delete, então não perde nada por não passar
+        // pelo interceptor do SaveChanges.
+        var now = DateTime.UtcNow;
+        return await _db.RefreshTokens
+            .Where(t => t.UserId == userId && t.RevokedAt == null && t.ExpiresAt > now)
+            .ExecuteUpdateAsync(set => set.SetProperty(t => t.RevokedAt, now), cancellationToken);
+    }
 }

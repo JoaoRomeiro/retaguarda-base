@@ -17,8 +17,13 @@ public sealed class UserServiceTests
         return repo;
     }
 
-    private static UserService BuildService(FakeUserRepository repository) =>
-        new(repository, new CreateUserRequestValidator(repository), new UpdateUserRequestValidator(repository));
+    private static UserService BuildService(
+        FakeUserRepository repository, FakeRefreshTokenRepository? refreshTokens = null) =>
+        new(
+            repository,
+            refreshTokens ?? new FakeRefreshTokenRepository(),
+            new CreateUserRequestValidator(repository),
+            new UpdateUserRequestValidator(repository));
 
     private static CreateUserRequest ValidCreate(string email = "op@tibrasil.local") => new()
     {
@@ -171,6 +176,85 @@ public sealed class UserServiceTests
             DefaultSiteId = 2,  // não associada
             IsActive = true,
         }));
+    }
+
+    // --- Desativação encerra as sessões abertas (item 1 da avaliação técnica) ---
+
+    [Fact]
+    public async Task UpdateAsync_deactivating_user_regenerates_stamp_and_revokes_refresh_tokens()
+    {
+        var repo = BuildRepository();
+        var refreshTokens = new FakeRefreshTokenRepository();
+        var service = BuildService(repo, refreshTokens);
+        var created = await service.CreateAsync(ValidCreate());
+        refreshTokens.SeedActive(created.Id, "hash-sessao-api");
+        var stampBefore = repo.Users[0].SecurityStamp;
+
+        var ok = await service.UpdateAsync(new UpdateUserRequest
+        {
+            Id = created.Id,
+            FullName = "Operador",
+            RoleName = "Picker",
+            DefaultSiteId = 1,
+            IsActive = false,
+        });
+
+        Assert.True(ok);
+        Assert.False(repo.Users[0].IsActive);
+        // Cookie da Web: o stamp mudou, então o SecurityStampValidator rejeita o principal.
+        Assert.Equal(1, repo.SecurityStampRegenerations);
+        Assert.NotEqual(stampBefore, repo.Users[0].SecurityStamp);
+        // Sessão da Api: o refresh token deixa de renovar.
+        Assert.NotNull(refreshTokens.Tokens[0].RevokedAt);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_keeping_user_active_preserves_sessions()
+    {
+        var repo = BuildRepository();
+        var refreshTokens = new FakeRefreshTokenRepository();
+        var service = BuildService(repo, refreshTokens);
+        var created = await service.CreateAsync(ValidCreate());
+        refreshTokens.SeedActive(created.Id, "hash-sessao-api");
+
+        await service.UpdateAsync(new UpdateUserRequest
+        {
+            Id = created.Id,
+            FullName = "Operador Sr.",
+            RoleName = "Manager",
+            DefaultSiteId = 1,
+            IsActive = true,
+        });
+
+        // Editar o perfil não pode derrubar a sessão de quem continua ativo.
+        Assert.Equal(0, repo.SecurityStampRegenerations);
+        Assert.Equal(0, refreshTokens.RevokeAllCalls);
+        Assert.Null(refreshTokens.Tokens[0].RevokedAt);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_user_already_inactive_does_not_revoke_again()
+    {
+        var repo = BuildRepository();
+        var refreshTokens = new FakeRefreshTokenRepository();
+        var service = BuildService(repo, refreshTokens);
+        var created = await service.CreateAsync(ValidCreate());
+
+        var update = new UpdateUserRequest
+        {
+            Id = created.Id,
+            FullName = "Operador",
+            RoleName = "Picker",
+            DefaultSiteId = 1,
+            IsActive = false,
+        };
+
+        await service.UpdateAsync(update);   // ativo → inativo: revoga
+        await service.UpdateAsync(update);   // já inativo: nada a fazer
+
+        // Só a TRANSIÇÃO derruba as sessões; reeditar um inativo não repete o trabalho.
+        Assert.Equal(1, repo.SecurityStampRegenerations);
+        Assert.Equal(1, refreshTokens.RevokeAllCalls);
     }
 
     [Fact]

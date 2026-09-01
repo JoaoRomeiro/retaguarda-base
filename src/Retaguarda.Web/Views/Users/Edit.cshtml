@@ -59,7 +59,10 @@
                     <span asp-validation-for="DefaultSiteId" class="text-danger small"></span>
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="IsActive" class="form-label"><strong>@L["user_field_active"]</strong></label>
+                    <label asp-for="IsActive" class="form-label">
+                        <strong>@L["user_field_active"]</strong>
+                        <partial name="_FieldHelp" model="@L["user_field_active_hint"].Value" />
+                    </label>
                     <select name="IsActive" id="IsActive" class="form-select">
                         <option value="true" selected="@(Model.IsActive ? "selected" : null)">@L["active_yes"]</option>
                         <option value="false" selected="@(!Model.IsActive ? "selected" : null)">@L["active_no"]</option>

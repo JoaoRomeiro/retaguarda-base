@@ -11,15 +11,18 @@ public sealed class UserService : IUserService
     private const int DefaultPageSize = 20;
 
     private readonly IUserRepository _repository;
+    private readonly IRefreshTokenRepository _refreshTokens;
     private readonly IValidator<CreateUserRequest> _createValidator;
     private readonly IValidator<UpdateUserRequest> _updateValidator;
 
     public UserService(
         IUserRepository repository,
+        IRefreshTokenRepository refreshTokens,
         IValidator<CreateUserRequest> createValidator,
         IValidator<UpdateUserRequest> updateValidator)
     {
         _repository = repository;
+        _refreshTokens = refreshTokens;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
     }
@@ -116,11 +119,21 @@ public sealed class UserService : IUserService
 
         await _updateValidator.ValidateAndThrowAsync(request, cancellationToken);
 
+        // Estado anterior: só a TRANSIÇÃO ativo → inativo derruba as sessões (reeditar um
+        // usuário que já estava inativo não precisa revogar nada de novo).
+        var wasActive = user.IsActive;
+
         user.FullName = request.FullName;
         user.IsActive = request.IsActive;
         user.DefaultSiteId = request.DefaultSiteId;
 
         await _repository.UpdateAsync(user, request.RoleName, cancellationToken);
+
+        if (wasActive && !user.IsActive)
+        {
+            await RevokeAccessAsync(user, cancellationToken);
+        }
+
         return true;
     }
 
@@ -141,5 +154,20 @@ public sealed class UserService : IUserService
 
         await _repository.DeleteAsync(user, cancellationToken);
         return UserDeletionResult.Deleted;
+    }
+
+    // Encerra as sessões abertas de um usuário que acabou de ser desativado. Bloquear o próximo
+    // login (ApplicationSignInManager) não basta: o cookie e o refresh token já emitidos
+    // continuariam valendo por horas.
+    //   - Web: regenerar o security stamp faz o cookie deixar de bater e o
+    //     SecurityStampValidator rejeitar o principal na próxima validação.
+    //   - Api: revogar os refresh tokens impede a renovação (o access token restante expira
+    //     sozinho em minutos).
+    // A EXCLUSÃO do usuário não precisa disso: o soft delete some com ele do query filter, o
+    // stamp não é encontrado e a rejeição do cookie acontece pelo mesmo caminho.
+    private async Task RevokeAccessAsync(ApplicationUser user, CancellationToken cancellationToken)
+    {
+        await _repository.RegenerateSecurityStampAsync(user, cancellationToken);
+        await _refreshTokens.RevokeAllForUserAsync(user.Id, cancellationToken);
     }
 }

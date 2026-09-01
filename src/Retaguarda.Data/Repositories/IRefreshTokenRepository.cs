@@ -19,4 +19,8 @@ public interface IRefreshTokenRepository
 
     // Rotação (refresh): revoga o token antigo e persiste o novo na mesma transação.
     Task RotateAsync(RefreshToken oldToken, RefreshToken newToken, CancellationToken cancellationToken = default);
+
+    // Revoga TODOS os tokens ativos de um usuário (desativação da conta). Devolve quantos foram
+    // revogados. Idempotente: sem tokens ativos, não faz nada e devolve 0.
+    Task<int> RevokeAllForUserAsync(string userId, CancellationToken cancellationToken = default);
 }

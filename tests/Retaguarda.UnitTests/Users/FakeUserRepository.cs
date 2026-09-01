@@ -176,6 +176,18 @@ internal sealed class FakeUserRepository : IUserRepository
         return Task.CompletedTask;
     }
 
+    // Simula a regeneração do stamp: o valor muda a cada chamada, como faz o UserManager.
+    public Task RegenerateSecurityStampAsync(
+        ApplicationUser user, CancellationToken cancellationToken = default)
+    {
+        user.SecurityStamp = Guid.NewGuid().ToString();
+        SecurityStampRegenerations++;
+        return Task.CompletedTask;
+    }
+
+    // Quantas vezes o stamp foi regenerado (os testes verificam que só a desativação regenera).
+    public int SecurityStampRegenerations { get; private set; }
+
     public Task DeleteAsync(ApplicationUser user, CancellationToken cancellationToken = default)
     {
         user.IsDeleted = true;

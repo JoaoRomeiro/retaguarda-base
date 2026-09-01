@@ -60,6 +60,11 @@ public interface IUserRepository
     Task UpdateAsync(
         ApplicationUser user, string roleName, CancellationToken cancellationToken = default);
 
+    // Regenera o security stamp do usuário. O cookie de autenticação carrega o stamp antigo:
+    // ao não bater mais, o SecurityStampValidator rejeita o principal e desloga a sessão na
+    // próxima validação (30 min, default do Identity). Usado ao desativar a conta.
+    Task RegenerateSecurityStampAsync(ApplicationUser user, CancellationToken cancellationToken = default);
+
     // Exclusão lógica (o interceptor converte o Remove em soft delete).
     Task DeleteAsync(ApplicationUser user, CancellationToken cancellationToken = default);
 }

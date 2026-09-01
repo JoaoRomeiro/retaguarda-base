@@ -215,6 +215,10 @@ public sealed class UserRepository : IUserRepository
         }
     }
 
+    public async Task RegenerateSecurityStampAsync(
+        ApplicationUser user, CancellationToken cancellationToken = default)
+        => EnsureSucceeded(await _userManager.UpdateSecurityStampAsync(user));
+
     public async Task DeleteAsync(ApplicationUser user, CancellationToken cancellationToken = default)
     {
         _db.Users.Remove(user);  // interceptor converte em soft delete (vira UPDATE)

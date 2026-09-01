@@ -185,6 +185,10 @@ try
     builder.Services.AddSingleton<IExcelExporter, ClosedXmlExcelExporter>();
     builder.Services.AddSingleton<IPdfExporter, QuestPdfExporter>();
 
+    // Refresh tokens: a Web não autentica por JWT, mas precisa revogar os tokens da Api quando
+    // um usuário é desativado no cadastro (senão a sessão da Api sobreviveria à desativação).
+    builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
     // CRUD de User: repositório e serviço. Inclui o sub-CRUD de plantas do usuário.
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<IUserService, UserService>();
