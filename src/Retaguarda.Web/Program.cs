@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using Microsoft.Extensions.Options;
@@ -195,6 +196,24 @@ try
     builder.Services.AddScoped<IUserSiteService, UserSiteService>();
     builder.Services.AddScoped<ISiteSelectionService, SiteSelectionService>();
 
+    // Rate limiting dos endpoints anônimos de autenticação (política por IP em AuthRateLimiting).
+    // Quem chega aqui é um navegador, então a recusa devolve 429 + Retry-After com uma página
+    // mínima e localizada — JSON não serve, e renderizar uma view exigiria reexecutar a pipeline.
+    builder.Services.AddAuthRateLimiter(async (context, cancellationToken) =>
+    {
+        AuthRateLimiting.ApplyRetryAfter(context);
+
+        var httpContext = context.HttpContext;
+        var localizer = httpContext.RequestServices.GetRequiredService<IStringLocalizer<SharedResources>>();
+
+        httpContext.Response.ContentType = "text/html; charset=utf-8";
+        await httpContext.Response.WriteAsync(
+            TooManyRequestsPage.Render(
+                localizer["too_many_requests_title"].Value,
+                localizer["too_many_requests_message"].Value),
+            cancellationToken);
+    });
+
     // Health checks: /health (liveness) e /health/ready (readiness, inclui o Postgres).
     builder.Services.AddHealthChecks()
         .AddCheck<DatabaseHealthCheck>("database", tags: [DatabaseHealthCheck.ReadyTag]);
@@ -254,6 +273,11 @@ try
     // Autenticação precisa vir antes de autorização.
     app.UseAuthentication();
     app.UseAuthorization();
+
+    // Rate limiting: depois do roteamento (precisa do endpoint para achar a política do
+    // [EnableRateLimiting]) e antes das actions. Só os endpoints anotados são limitados —
+    // /health, estáticos e as telas autenticadas passam livres.
+    app.UseRateLimiter();
 
     // Usuário autenticado sem planta ativa é levado à tela de seleção.
     app.UseMiddleware<ActiveSiteSelectionMiddleware>();

@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Localization;
 using Retaguarda.Api.Infrastructure;
 using Retaguarda.Api.Models.Authentication;
+using Retaguarda.AspNetCore.Security;
 using Retaguarda.Business.Authentication;
 using Retaguarda.Business.Authentication.Dtos;
 using Retaguarda.Shared;
@@ -28,6 +30,7 @@ public sealed class AuthController : ApiControllerBase
 
     [HttpPost("login")]
     [AllowAnonymous]
+    [EnableRateLimiting(AuthRateLimiting.CredentialsPolicy)]
     public async Task<IActionResult> Login(
         [FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
@@ -51,6 +54,7 @@ public sealed class AuthController : ApiControllerBase
 
     [HttpPost("select-site")]
     [AllowAnonymous]
+    [EnableRateLimiting(AuthRateLimiting.CredentialsPolicy)]
     public async Task<IActionResult> SelectSite(
         [FromBody] SelectSiteRequest request, CancellationToken cancellationToken)
     {
@@ -73,6 +77,7 @@ public sealed class AuthController : ApiControllerBase
 
     [HttpPost("refresh")]
     [AllowAnonymous]
+    [EnableRateLimiting(AuthRateLimiting.RefreshPolicy)]
     public async Task<IActionResult> Refresh(
         [FromBody] RefreshRequest request, CancellationToken cancellationToken)
     {

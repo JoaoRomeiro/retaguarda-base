@@ -195,7 +195,7 @@ Fonte: [ASP.NET Core Best Practices](https://learn.microsoft.com/en-us/aspnet/co
 | SQL cru parametrizado (sem concatenação de entrada do usuário) | ✅ | A base não tem SQL cru. Se precisar, use `SqlQueryRaw` com `NpgsqlParameter` — nunca interpolação de entrada do usuário |
 | `IHttpClientFactory` em vez de `new HttpClient()` | ⏳ | Quando houver chamada HTTP de saída |
 | Cache de dados quentes (`IMemoryCache`/distribuído) | ⏳ | Avaliar quando houver consulta cara e repetida |
-| Rate limiting na API pública | ❌ | **Removido do base junto com a ingestão.** A Api só expõe autenticação hoje. Ao publicar qualquer endpoint de escrita, adicionar `AddRateLimiter` + `UseRateLimiter` (429 + `Retry-After`) |
+| Rate limiting na API pública | ✅ | Implementado em 2026-08-31 (item 2 da avaliação técnica). `AddRateLimiter` + `UseRateLimiter` nos DOIS hosts, com política de janela fixa **por IP** em `Retaguarda.AspNetCore/Security/AuthRateLimiting.cs`: `auth-credentials` (20/min — login, seleção de planta, esqueci/redefinir senha) e `auth-refresh` (60/min). Aplicado endpoint a endpoint via `[EnableRateLimiting]`, nunca global, então `/health` e as telas autenticadas ficam de fora por construção. Recusa devolve **429 + `Retry-After`**: ProblemDetails com `code=too_many_requests` na Api, página localizada na Web. **Atenção ao publicar endpoint de escrita:** ele não é coberto automaticamente — precisa do atributo. Efeito colateral do IP compartilhado registrado como gotcha no CLAUDE.md |
 
 ---
 
@@ -254,7 +254,7 @@ Itens que hoje estão ❌/⚠️ e são aplicáveis ao estado atual (não ⏳):
 8. **CI (§12):** ❌ removido em 2026-08-31 (dev solo). Não há gate automático nenhum: build, testes e `docker compose build` dependem de disciplina manual antes do deploy.
 
 9. **Testes de integração (§11):** ❌ **aberto, por decisão.** Login, seleção de planta, os três CRUDs e a exportação são validados **à mão** com a app no ar; nada disso é reexecutado automaticamente. Uma regressão de rota, DI, autorização ou tradução de consulta EF só apareceria em uso. É a maior lacuna de qualidade da base — assumida conscientemente em 2026-08-31 (custo × benefício para dev solo).
-10. **Rate limiting (§10):** ❌ a Api hoje só expõe autenticação. **Antes de publicar qualquer endpoint de escrita**, reinstalar o limitador.
+10. ~~**Rate limiting (§10):** ❌ a Api hoje só expõe autenticação.~~ ✅ **Resolvido em 2026-08-31:** endpoints anônimos de autenticação limitados por IP nos dois hosts (§10). Endpoint novo de escrita continua **não** coberto por padrão — precisa do `[EnableRateLimiting]`.
 
 > A ordem acima é sugestão de prioridade (impacto × custo), **não** uma autorização de execução. Cada item vira uma etapa quando você decidir.
 

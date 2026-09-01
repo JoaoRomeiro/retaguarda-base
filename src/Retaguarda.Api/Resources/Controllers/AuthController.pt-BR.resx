@@ -64,6 +64,9 @@
   <data name="user_locked_out" xml:space="preserve">
     <value>Conta temporariamente bloqueada por excesso de tentativas. Tente novamente mais tarde.</value>
   </data>
+  <data name="too_many_requests" xml:space="preserve">
+    <value>Muitas requisições em pouco tempo. Aguarde alguns instantes e tente novamente.</value>
+  </data>
   <data name="invalid_pre_auth_token" xml:space="preserve">
     <value>Sessão de seleção de planta inválida ou expirada. Faça login novamente.</value>
   </data>

@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.Localization;
 using Retaguarda.Api.Authentication;
+using Retaguarda.Api.Controllers;
 using Retaguarda.Api.Infrastructure;
 using Retaguarda.AspNetCore.Health;
 using Retaguarda.AspNetCore.Identity;
@@ -141,6 +144,27 @@ try
     builder.Services.AddControllers(options => options.Filters.Add<ValidationExceptionFilter>())
         .ConfigureApiBehaviorOptions(options => options.SuppressModelStateInvalidFilter = true);
 
+    // Rate limiting dos endpoints anônimos de autenticação (política por IP em AuthRateLimiting).
+    // A recusa segue o MESMO contrato dos demais erros: ProblemDetails + "code" = chave do .resx.
+    builder.Services.AddAuthRateLimiter(async (context, cancellationToken) =>
+    {
+        AuthRateLimiting.ApplyRetryAfter(context);
+
+        var httpContext = context.HttpContext;
+        var localizer = httpContext.RequestServices.GetRequiredService<IStringLocalizer<AuthController>>();
+        var factory = httpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
+
+        var problem = factory.CreateProblemDetails(
+            httpContext,
+            statusCode: StatusCodes.Status429TooManyRequests,
+            title: localizer["too_many_requests"]);
+        problem.Extensions["code"] = "too_many_requests";
+
+        httpContext.Response.ContentType = "application/problem+json";
+        await httpContext.Response.WriteAsJsonAsync(
+            problem, options: null, contentType: "application/problem+json", cancellationToken);
+    });
+
     // ProblemDetails (RFC 9457): respostas de erro estruturadas e previsíveis para os clientes.
     // Habilita corpo problem+json em exceções não tratadas e em status de erro sem corpo.
     builder.Services.AddProblemDetails();
@@ -202,6 +226,11 @@ try
     // Autenticação (JWT) antes da autorização.
     app.UseAuthentication();
     app.UseAuthorization();
+
+    // Rate limiting: depois do roteamento (precisa do endpoint para achar a política do
+    // [EnableRateLimiting]) e antes das actions. Só os endpoints anotados são limitados —
+    // /health e o resto passam livres.
+    app.UseRateLimiter();
 
     app.MapControllers();
     // Liveness: o processo está de pé (sem checar o banco). Readiness (/health/ready) inclui o Postgres.

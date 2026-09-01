@@ -486,6 +486,12 @@
   <data name="user_field_active" xml:space="preserve">
     <value>Ativo</value>
   </data>
+  <data name="too_many_requests_title" xml:space="preserve">
+    <value>Muitas tentativas</value>
+  </data>
+  <data name="too_many_requests_message" xml:space="preserve">
+    <value>Foram feitas requisições demais em pouco tempo. Aguarde um minuto e tente novamente.</value>
+  </data>
   <data name="user_field_active_hint" xml:space="preserve">
     <value>Desativar bloqueia novos logins imediatamente. Uma sessão já aberta pode continuar por até 30 minutos antes de ser encerrada.</value>
   </data>
