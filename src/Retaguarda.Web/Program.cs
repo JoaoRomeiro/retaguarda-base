@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -9,6 +9,7 @@ using Microsoft.Extensions.Localization;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using Microsoft.Extensions.Options;
+using Retaguarda.AspNetCore.Authorization;
 using Retaguarda.AspNetCore.Health;
 using Retaguarda.AspNetCore.Identity;
 using Retaguarda.AspNetCore.Security;
@@ -103,6 +104,11 @@ try
     // implementação vive em Retaguarda.AspNetCore.
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+    // Autorização por permissão: o catálogo vem dos IPermissionProvider
+    // registrados e as políticas nascem sob demanda a partir do nome da permissão.
+    builder.Services.AddAuthorization();
+    builder.Services.AddRetaguardaPermissions();
 
     // Interceptor que carimba auditoria e aplica soft delete a cada SaveChanges.
     builder.Services.AddScoped<AuditableEntityInterceptor>();
@@ -324,6 +330,7 @@ try
     {
         using var scope = app.Services.CreateScope();
         await DevelopmentDataSeeder.SeedAsync(scope.ServiceProvider);
+        await RolePermissionSeeder.SeedAdminPermissionsAsync(scope.ServiceProvider);
     }
     else
     {
@@ -333,6 +340,7 @@ try
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await db.Database.MigrateAsync();
         await ProductionDataSeeder.SeedAsync(scope.ServiceProvider);
+        await RolePermissionSeeder.SeedAdminPermissionsAsync(scope.ServiceProvider);
     }
 
     app.Run();

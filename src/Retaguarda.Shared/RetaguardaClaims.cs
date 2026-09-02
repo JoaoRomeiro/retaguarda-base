@@ -12,4 +12,9 @@ public static class RetaguardaClaims
     // Nome da planta ativa exibido na casca da aplicação. Mantido junto do SiteId para
     // evitar consulta ao banco a cada renderização do topbar.
     public const string SiteName = "SiteName";
+
+    // Permissão concedida ao usuário. Não é gravada no usuário: vem das claims do papel
+    // (identity."RoleClaims"), copiadas para o principal pelo UserClaimsPrincipalFactory do
+    // Identity. Uma claim por permissão — o valor é o nome do catálogo (ex.: "sites.edit").
+    public const string Permission = "permission";
 }
