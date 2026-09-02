@@ -1,10 +1,11 @@
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Retaguarda.Business.Roles;
 using Retaguarda.Business.Roles.Dtos;
 using Retaguarda.Shared;
+using Retaguarda.Shared.Authorization;
 using Retaguarda.Web.Models.Roles;
 
 namespace Retaguarda.Web.Controllers;
@@ -18,11 +19,16 @@ public sealed class RolesController : Controller
     private const int PageSize = 10;
 
     private readonly IRoleService _roleService;
+    private readonly IPermissionCatalog _permissions;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
-    public RolesController(IRoleService roleService, IStringLocalizer<SharedResources> localizer)
+    public RolesController(
+        IRoleService roleService,
+        IPermissionCatalog permissions,
+        IStringLocalizer<SharedResources> localizer)
     {
         _roleService = roleService;
+        _permissions = permissions;
         _localizer = localizer;
     }
 
@@ -37,6 +43,7 @@ public sealed class RolesController : Controller
     public IActionResult Create(string? search, int page = 1)
     {
         SetListState(search, page);
+        SetPermissionState(isSystem: false);
         return View(new CreateRoleRequest());
     }
 
@@ -53,6 +60,7 @@ public sealed class RolesController : Controller
         {
             AddValidationErrors(ex);
             SetListState(search, page);
+            SetPermissionState(isSystem: false);
             return View(request);
         }
 
@@ -70,13 +78,15 @@ public sealed class RolesController : Controller
         }
 
         SetListState(search, page);
-        // IsSystem controla o bloqueio do nome na view (papel interno: nome somente-leitura).
-        ViewData["IsSystem"] = role.IsSystem;
+        // IsSystem controla o bloqueio do nome e das permissões na view (papel interno é
+        // somente-leitura nesses dois campos).
+        SetPermissionState(role.IsSystem);
         return View(new UpdateRoleRequest
         {
             Id = role.Id,
             Name = role.Name,
             Description = role.Description,
+            Permissions = [.. role.Permissions],
         });
     }
 
@@ -96,7 +106,7 @@ public sealed class RolesController : Controller
             SetListState(search, page);
             // Reavalia IsSystem para re-renderizar o formulário corretamente após erro.
             var current = await _roleService.GetByIdAsync(request.Id, cancellationToken);
-            ViewData["IsSystem"] = current?.IsSystem ?? false;
+            SetPermissionState(current?.IsSystem ?? false);
             return View(request);
         }
 
@@ -156,6 +166,13 @@ public sealed class RolesController : Controller
         }
 
         return RedirectToAction(nameof(Index), new { search, page });
+    }
+
+    // Catálogo de permissões (checkboxes) + bloqueio do papel interno.
+    private void SetPermissionState(bool isSystem)
+    {
+        ViewData["IsSystem"] = isSystem;
+        ViewData["PermissionCatalog"] = _permissions;
     }
 
     // Disponibiliza o estado da listagem para a view (campos ocultos + link Cancelar).

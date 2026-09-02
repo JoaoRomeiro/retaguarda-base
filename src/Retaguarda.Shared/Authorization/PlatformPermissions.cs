@@ -1,4 +1,4 @@
-namespace Retaguarda.Shared.Authorization;
+﻿namespace Retaguarda.Shared.Authorization;
 
 /// <summary>
 /// Permissões da plataforma (o que a base entrega: Plantas, Usuários e Acessos). Um projeto
@@ -30,10 +30,21 @@ public static class PlatformPermissions
         public const string Create = "users.create";
         public const string Edit = "users.edit";
         public const string Delete = "users.delete";
+    }
 
-        // Cobre a tela de vínculo usuário↔planta inteira (ver, incluir e remover). Separar em três
-        // daria checkbox sem uso real: quem administra o vínculo administra os três.
-        public const string ManageSites = "users.sites.manage";
+    /// <summary>
+    /// Vínculo usuário↔planta (<c>UserSitesController</c>). Recurso próprio, e não uma permissão
+    /// solta dentro de Usuários: a tela tem exatamente Listar, Criar e Excluir, e "só listar" é um
+    /// caso real (conferir em quais plantas alguém está, sem poder mexer). Não tem editar porque o
+    /// vínculo não se edita — cria-se ou remove-se.
+    /// </summary>
+    public static class UserSites
+    {
+        public const string Resource = "usersites";
+
+        public const string View = "usersites.view";
+        public const string Create = "usersites.create";
+        public const string Delete = "usersites.delete";
     }
 
     public static class Roles
@@ -61,7 +72,10 @@ public static class PlatformPermissions
             new(Users.Create, Users.Resource),
             new(Users.Edit, Users.Resource),
             new(Users.Delete, Users.Resource),
-            new(Users.ManageSites, Users.Resource),
+
+            new(UserSites.View, UserSites.Resource),
+            new(UserSites.Create, UserSites.Resource),
+            new(UserSites.Delete, UserSites.Resource),
 
             new(Roles.View, Roles.Resource),
             new(Roles.Create, Roles.Resource),

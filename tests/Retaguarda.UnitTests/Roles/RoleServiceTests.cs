@@ -1,15 +1,21 @@
-using FluentValidation;
+﻿using FluentValidation;
 using Retaguarda.Business.Roles;
 using Retaguarda.Business.Roles.Dtos;
 using Retaguarda.Business.Roles.Validators;
 using Retaguarda.Data.Identity;
+using Retaguarda.Shared.Authorization;
 
 namespace Retaguarda.UnitTests.Roles;
 
 public sealed class RoleServiceTests
 {
+    // Mesmo catálogo da aplicação: os testes exercitam as permissões reais da plataforma.
+    private static readonly PermissionCatalog Catalog = new([new PlatformPermissions.Provider()]);
+
     private static RoleService BuildService(FakeRoleRepository repository) =>
-        new(repository, new CreateRoleRequestValidator(repository), new UpdateRoleRequestValidator(repository));
+        new(repository,
+            new CreateRoleRequestValidator(repository, Catalog),
+            new UpdateRoleRequestValidator(repository, Catalog));
 
     private static CreateRoleRequest ValidCreate(string name = "Operators") => new()
     {

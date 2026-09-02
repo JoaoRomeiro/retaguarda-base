@@ -41,6 +41,9 @@
                     <textarea asp-for="Description" class="form-control" rows="5" maxlength="200"></textarea>
                     <span asp-validation-for="Description" class="text-danger small"></span>
                 </div>
+                <div class="col-12">
+                    <partial name="_PermissionPicker" model="Model.Permissions" />
+                </div>
             </div>
         </div>
 

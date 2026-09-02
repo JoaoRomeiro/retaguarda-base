@@ -1,4 +1,4 @@
-@model Retaguarda.Business.Roles.Dtos.CreateRoleRequest
+﻿@model Retaguarda.Business.Roles.Dtos.CreateRoleRequest
 @inject IStringLocalizer<SharedResources> L
 @{
     ViewData["Title"] = L["roles_new"].Value;
@@ -29,6 +29,9 @@
                     <label asp-for="Description" class="form-label"><strong>@L["role_field_description"]</strong></label>
                     <textarea asp-for="Description" class="form-control" rows="5" maxlength="200"></textarea>
                     <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <partial name="_PermissionPicker" model="Model.Permissions" />
                 </div>
             </div>
         </div>

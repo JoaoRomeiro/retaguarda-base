@@ -1,6 +1,8 @@
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Retaguarda.Data.Identity;
+using Retaguarda.Shared;
 
 namespace Retaguarda.Data.Repositories;
 
@@ -63,6 +65,39 @@ public sealed class RoleRepository : IRoleRepository
 
     public Task<int> CountUsersInRoleAsync(string roleId, CancellationToken cancellationToken = default)
         => _db.UserRoles.CountAsync(ur => ur.RoleId == roleId, cancellationToken);
+
+    public async Task<IReadOnlyList<string>> GetPermissionsAsync(
+        string roleId, CancellationToken cancellationToken = default)
+    {
+        return await _db.RoleClaims
+            .Where(c => c.RoleId == roleId && c.ClaimType == RetaguardaClaims.Permission)
+            .Select(c => c.ClaimValue!)
+            .OrderBy(value => value)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task SetPermissionsAsync(
+        ApplicationRole role, IReadOnlyCollection<string> permissions, CancellationToken cancellationToken = default)
+    {
+        var desired = permissions.ToHashSet(StringComparer.Ordinal);
+
+        // Vai pelo RoleManager (e não por Add/Remove direto no DbContext) para manter a mesma porta
+        // de entrada do Identity usada em AddAsync/UpdateAsync.
+        var current = (await _roleManager.GetClaimsAsync(role))
+            .Where(c => c.Type == RetaguardaClaims.Permission)
+            .ToList();
+
+        foreach (var claim in current.Where(c => !desired.Contains(c.Value)))
+        {
+            EnsureSucceeded(await _roleManager.RemoveClaimAsync(role, claim));
+        }
+
+        var existing = current.Select(c => c.Value).ToHashSet(StringComparer.Ordinal);
+        foreach (var permission in desired.Where(p => !existing.Contains(p)))
+        {
+            EnsureSucceeded(await _roleManager.AddClaimAsync(role, new Claim(RetaguardaClaims.Permission, permission)));
+        }
+    }
 
     public async Task<ApplicationRole> AddAsync(ApplicationRole role, CancellationToken cancellationToken = default)
     {

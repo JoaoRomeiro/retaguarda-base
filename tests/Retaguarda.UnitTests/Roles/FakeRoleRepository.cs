@@ -1,4 +1,4 @@
-using Retaguarda.Data.Identity;
+﻿using Retaguarda.Data.Identity;
 using Retaguarda.Data.Repositories;
 
 namespace Retaguarda.UnitTests.Roles;
@@ -52,6 +52,24 @@ internal sealed class FakeRoleRepository : IRoleRepository
 
     public Task<int> CountUsersInRoleAsync(string roleId, CancellationToken cancellationToken = default)
         => Task.FromResult(_usersByRoleId.TryGetValue(roleId, out var count) ? count : 0);
+
+    // Permissões por papel, espelhando identity."RoleClaims" filtrado por ClaimType = permission.
+    private readonly Dictionary<string, List<string>> _permissionsByRoleId = [];
+
+    public Task<IReadOnlyList<string>> GetPermissionsAsync(string roleId, CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<string>>(
+            _permissionsByRoleId.TryGetValue(roleId, out var permissions) ? [.. permissions] : []);
+
+    public Task SetPermissionsAsync(
+        ApplicationRole role, IReadOnlyCollection<string> permissions, CancellationToken cancellationToken = default)
+    {
+        _permissionsByRoleId[role.Id] = [.. permissions];
+        return Task.CompletedTask;
+    }
+
+    // Define as permissões já existentes de um papel (arranjo do teste, não operação do cadastro).
+    public void SeedPermissions(string roleId, params string[] permissions)
+        => _permissionsByRoleId[roleId] = [.. permissions];
 
     public Task<ApplicationRole> AddAsync(ApplicationRole role, CancellationToken cancellationToken = default)
     {

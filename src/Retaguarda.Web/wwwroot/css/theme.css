@@ -548,6 +548,35 @@ button[type="button"].field-help {
     border-radius: 2px;
 }
 
+/* ---- Seletor de permissões do cadastro de Acessos (_PermissionPicker) ----
+   Colunas que se acomodam sozinhas: com o catálogo crescendo por projeto derivado, uma
+   contagem fixa de colunas deixaria de servir na primeira permissão nova. */
+.permission-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 1rem;
+}
+
+.permission-group {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    padding: 0.75rem 1rem 1rem;
+    margin: 0;
+    min-width: 0;
+}
+
+.permission-group legend {
+    float: none; /* o reboot do Bootstrap faz legend ocupar 100% e virar bloco */
+    width: auto;
+    padding: 0 0.25rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+}
+
 /* O Bootstrap 5.3 faz --bs-table-bg herdar --bs-body-bg (nosso fundo acinzentado),
    deixando a tabela mais escura que o card. Tabelas vivem sobre superfície branca. */
 .table {

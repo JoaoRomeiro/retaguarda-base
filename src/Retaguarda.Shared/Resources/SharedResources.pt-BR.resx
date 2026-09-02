@@ -744,4 +744,76 @@
   <data name="home_card_sites" xml:space="preserve">
     <value>Plantas atendidas por esta instalação.</value>
   </data>
+  <data name="role_field_permissions" xml:space="preserve">
+    <value>Permissões</value>
+  </data>
+  <data name="role_field_permissions_hint" xml:space="preserve">
+    <value>Marque o que este acesso permite fazer. Sem nenhuma marcação, o acesso não abre nenhuma tela.</value>
+  </data>
+  <data name="role_permissions_system" xml:space="preserve">
+    <value>As permissões de um acesso interno não podem ser alteradas: o sistema depende delas para continuar administrável.</value>
+  </data>
+  <data name="role_permission_unknown" xml:space="preserve">
+    <value>Uma das permissões informadas não existe.</value>
+  </data>
+  <data name="permission_resource_sites" xml:space="preserve">
+    <value>Plantas</value>
+  </data>
+  <data name="permission_resource_users" xml:space="preserve">
+    <value>Usuários</value>
+  </data>
+  <data name="permission_resource_roles" xml:space="preserve">
+    <value>Acessos</value>
+  </data>
+  <data name="permission_sites_view" xml:space="preserve">
+    <value>Listar</value>
+  </data>
+  <data name="permission_sites_create" xml:space="preserve">
+    <value>Criar</value>
+  </data>
+  <data name="permission_sites_edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="permission_sites_delete" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="permission_sites_export" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="permission_users_view" xml:space="preserve">
+    <value>Listar</value>
+  </data>
+  <data name="permission_users_create" xml:space="preserve">
+    <value>Criar</value>
+  </data>
+  <data name="permission_users_edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="permission_users_delete" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="permission_resource_usersites" xml:space="preserve">
+    <value>Plantas do usuário</value>
+  </data>
+  <data name="permission_usersites_view" xml:space="preserve">
+    <value>Listar</value>
+  </data>
+  <data name="permission_usersites_create" xml:space="preserve">
+    <value>Criar</value>
+  </data>
+  <data name="permission_usersites_delete" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="permission_roles_view" xml:space="preserve">
+    <value>Listar</value>
+  </data>
+  <data name="permission_roles_create" xml:space="preserve">
+    <value>Criar</value>
+  </data>
+  <data name="permission_roles_edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="permission_roles_delete" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
 </root>

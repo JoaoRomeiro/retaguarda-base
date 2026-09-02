@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Retaguarda.Shared.Authorization;
 
@@ -45,10 +45,11 @@ public sealed partial class PermissionCatalog : IPermissionCatalog
                 $"Permissões duplicadas no catálogo: {string.Join(", ", duplicates)}.");
         }
 
-        All = permissions
-            .OrderBy(permission => permission.Resource, StringComparer.Ordinal)
-            .ThenBy(permission => permission.Name, StringComparer.Ordinal)
-            .ToList();
+        // Ordem de declaração, não alfabética: é ela que carrega a intenção. Alfabética renderiza
+        // "Criar, Excluir, Editar, Listar" na tela; declarada renderiza "Listar, Criar, Editar,
+        // Excluir, Exportar" — o ciclo de vida do cadastro. Vale também entre recursos, e assim
+        // cada projeto derivado controla a ordem dos dele.
+        All = permissions;
 
         ByResource = All
             .GroupBy(permission => permission.Resource, StringComparer.Ordinal)

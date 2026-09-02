@@ -1,0 +1,48 @@
+﻿@using Retaguarda.Shared.Authorization
+@model IReadOnlyCollection<string>
+@inject IStringLocalizer<SharedResources> L
+@{
+    var catalog = (IPermissionCatalog)ViewData["PermissionCatalog"]!;
+    var isSystem = (bool?)ViewData["IsSystem"] ?? false;
+    var selected = Model.ToHashSet(StringComparer.Ordinal);
+}
+@*
+    Lista fechada de permissões, vinda do catálogo em código. O usuário marca, nunca digita:
+    nome digitado errado não daria erro nenhum — só negaria acesso em silêncio.
+
+    Papel interno (IsSystem) é somente-leitura. Checkbox desabilitado NÃO é enviado no POST, e é
+    justamente o que queremos aqui: o serviço ignora as permissões de papel interno, então nada é
+    revogado por um POST vazio.
+*@
+<div class="form-label-row">
+    <span class="form-label" id="Permissions-label"><strong>@L["role_field_permissions"]</strong></span>
+    <partial name="_FieldHelp" model='new FieldHelp("Permissions", L["role_field_permissions_hint"].Value)' />
+</div>
+
+@if (isSystem)
+{
+    <div class="alert alert-info" role="alert">@L["role_permissions_system"]</div>
+}
+
+@* O grupo inteiro é um campo só: o rótulo e a ajuda valem para os 14 checkboxes, não para um
+   deles. O id do texto de ajuda é emitido pelo _FieldHelp — aqui só o referenciamos. *@
+<div class="permission-picker" role="group"
+     aria-labelledby="Permissions-label" aria-describedby="Permissions-help">
+    @foreach (var group in catalog.ByResource)
+    {
+        <fieldset class="permission-group">
+            <legend>@L[$"permission_resource_{group.Key}"]</legend>
+
+            @foreach (var permission in group)
+            {
+                var inputId = $"permission-{permission.Name.Replace('.', '-')}";
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="Permissions"
+                           id="@inputId" value="@permission.Name"
+                           checked="@selected.Contains(permission.Name)" disabled="@isSystem" />
+                    <label class="form-check-label" for="@inputId">@L[permission.ResourceKey]</label>
+                </div>
+            }
+        </fieldset>
+    }
+</div>

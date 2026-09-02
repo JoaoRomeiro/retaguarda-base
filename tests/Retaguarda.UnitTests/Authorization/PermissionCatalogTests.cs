@@ -1,4 +1,4 @@
-using Retaguarda.Shared.Authorization;
+﻿using Retaguarda.Shared.Authorization;
 
 namespace Retaguarda.UnitTests.Authorization;
 
@@ -17,9 +17,9 @@ public sealed class PermissionCatalogTests
         var catalog = Build(new PlatformPermissions.Provider());
 
         Assert.True(catalog.Contains(PlatformPermissions.Sites.Edit));
-        Assert.True(catalog.Contains(PlatformPermissions.Users.ManageSites));
+        Assert.True(catalog.Contains(PlatformPermissions.UserSites.View));
         Assert.True(catalog.Contains(PlatformPermissions.Roles.Delete));
-        Assert.Equal(14, catalog.All.Count);
+        Assert.Equal(16, catalog.All.Count);
     }
 
     [Fact]
@@ -76,15 +76,15 @@ public sealed class PermissionCatalogTests
     {
         var catalog = Build(new PlatformPermissions.Provider());
 
-        Assert.Equal(3, catalog.ByResource.Count);
+        Assert.Equal(4, catalog.ByResource.Count);
         Assert.Equal(catalog.All.Count, catalog.ByResource.Sum(group => group.Count()));
     }
 
     [Fact]
     public void Resource_key_is_derived_from_the_name()
     {
-        var permission = new PermissionDefinition(PlatformPermissions.Users.ManageSites, "users");
+        var permission = new PermissionDefinition(PlatformPermissions.UserSites.Delete, "usersites");
 
-        Assert.Equal("permission_users_sites_manage", permission.ResourceKey);
+        Assert.Equal("permission_usersites_delete", permission.ResourceKey);
     }
 }

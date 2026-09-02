@@ -1,4 +1,4 @@
-namespace Retaguarda.Shared.Authorization;
+﻿namespace Retaguarda.Shared.Authorization;
 
 /// <summary>
 /// Todas as permissões conhecidas pela aplicação, reunidas a partir dos <see cref="IPermissionProvider"/>
@@ -7,7 +7,7 @@ namespace Retaguarda.Shared.Authorization;
 /// </summary>
 public interface IPermissionCatalog
 {
-    /// <summary>Todas as permissões, ordenadas por recurso e nome.</summary>
+    /// <summary>Todas as permissões, na ordem em que os providers as declararam.</summary>
     IReadOnlyList<PermissionDefinition> All { get; }
 
     /// <summary>Permissões agrupadas por recurso, na ordem em que devem aparecer na tela.</summary>

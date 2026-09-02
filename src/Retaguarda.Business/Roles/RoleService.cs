@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using Mapster;
 using Retaguarda.Business.Roles.Dtos;
 using Retaguarda.Data.Identity;
@@ -46,7 +46,14 @@ public sealed class RoleService : IRoleService
     public async Task<RoleDto?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
     {
         var role = await _repository.GetByIdAsync(id, cancellationToken);
-        return role?.Adapt<RoleDto>();
+        if (role is null)
+        {
+            return null;
+        }
+
+        var dto = role.Adapt<RoleDto>();
+        dto.Permissions = await _repository.GetPermissionsAsync(role.Id, cancellationToken);
+        return dto;
     }
 
     public async Task<RoleDto> CreateAsync(CreateRoleRequest request, CancellationToken cancellationToken = default)
@@ -56,7 +63,13 @@ public sealed class RoleService : IRoleService
         // Papéis criados pelo cadastro nunca são internos (IsSystem = false por padrão).
         var role = new ApplicationRole(request.Name) { Description = request.Description };
         var created = await _repository.AddAsync(role, cancellationToken);
-        return created.Adapt<RoleDto>();
+
+        var permissions = Normalize(request.Permissions);
+        await _repository.SetPermissionsAsync(created, permissions, cancellationToken);
+
+        var dto = created.Adapt<RoleDto>();
+        dto.Permissions = permissions;
+        return dto;
     }
 
     public async Task<bool> UpdateAsync(UpdateRoleRequest request, CancellationToken cancellationToken = default)
@@ -78,8 +91,25 @@ public sealed class RoleService : IRoleService
 
         role.Description = request.Description;
         await _repository.UpdateAsync(role, cancellationToken);
+
+        // Papel interno tem as permissões travadas pelo mesmo motivo do nome: o seeder reconcede
+        // TODAS a cada boot, e deixar o formulário revogá-las trancaria o administrador para fora
+        // até o próximo restart. Defesa no servidor além dos checkboxes desabilitados na UI.
+        if (!role.IsSystem)
+        {
+            await _repository.SetPermissionsAsync(role, Normalize(request.Permissions), cancellationToken);
+        }
+
         return true;
     }
+
+    // Remove duplicatas e entradas vazias vindas do formulário e devolve em ordem estável.
+    private static List<string> Normalize(IEnumerable<string>? permissions) =>
+        (permissions ?? [])
+            .Where(permission => !string.IsNullOrWhiteSpace(permission))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(permission => permission, StringComparer.Ordinal)
+            .ToList();
 
     public async Task<RoleDeletionResult> DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
