@@ -1,4 +1,4 @@
-@model Retaguarda.Business.Roles.Dtos.UpdateRoleRequest
+﻿@model Retaguarda.Business.Roles.Dtos.UpdateRoleRequest
 @inject IStringLocalizer<SharedResources> L
 @{
     ViewData["Title"] = L["roles_edit"].Value;
@@ -24,13 +24,16 @@
 
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label asp-for="Name" class="form-label"><strong>@L["role_field_name"]</strong></label>
+                    <div class="form-label-row">
+                        <label asp-for="Name" class="form-label"><strong>@L["role_field_name"]</strong></label>
+                        @if (isSystem)
+                        {
+                            <partial name="_FieldHelp" model='new FieldHelp("Name", L["role_field_name_system_hint"].Value)' />
+                        }
+                    </div>
                     @* readonly (não disabled) para que o valor continue sendo enviado no POST. *@
-                    <input asp-for="Name" class="form-control" autofocus readonly="@(isSystem ? "readonly" : null)" />
-                    @if (isSystem)
-                    {
-                        <span class="form-text">@L["role_field_name_system_hint"]</span>
-                    }
+                    <input asp-for="Name" class="form-control" autofocus readonly="@(isSystem ? "readonly" : null)"
+                           aria-describedby="@(isSystem ? "Name-help" : null)" />
                     <span asp-validation-for="Name" class="text-danger small"></span>
                 </div>
                 <div class="col-12">

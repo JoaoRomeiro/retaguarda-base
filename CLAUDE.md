@@ -169,6 +169,7 @@ Hosts:       Retaguarda.Web        Retaguarda.Api
 - **Autenticação:** cookie (web admin, login em duas etapas com seleção de planta) + JWT/refresh token na API.
 - **Roles (seed):** só `Admin` (`ProductionDataSeeder`; em Development o `DevelopmentDataSeeder` cria também a planta `DEV` e o usuário admin `admin@retaguarda.local` / `Admin@123`).
 - **Auditoria + soft delete:** `AuditableEntity` (`Created/Updated/Deleted` `By`/`At` + `IsDeleted`), carimbado pelo `AuditableEntityInterceptor` no `SaveChanges`; excluídos somem via Global Query Filter. Índices únicos usam `HasFilter("\"IsDeleted\" = false")` para permitir reutilizar códigos de registros excluídos.
+- **Ajuda em campo de formulário:** dois formatos com regra fechada (`docs/padrao-ui.md` §8.2) — `_FieldHint` (visível, para restrição de preenchimento) e `_FieldHelp` (tooltip `?`, para explicação secundária), ambos com `aria-describedby="<Campo>-help"` no campo. `FieldHelpConventionTests` quebra o build no desvio.
 - **Exportação:** `ExportTable` (neutra) → `IExcelExporter`/`IPdfExporter`. Referência viva: `SitesController.Export` + o dropdown "Exportar" na listagem de Plantas.
 
 ---

@@ -240,6 +240,7 @@ Fonte: [Data Protection em containers](https://learn.microsoft.com/en-us/aspnet/
 |---|---|---|
 | Tema centralizado em tokens (CSS custom properties) | ✅ | `wwwroot/css/theme.css` |
 | Acessibilidade (skip-link, foco visível, contraste) | ✅ | Casca + tokens; regra de contraste alto documentada em `docs/padrao-ui.md` §6/§9 |
+| Texto de ajuda de campo padronizado e ligado por `aria-describedby` | ✅ | 2026-09-02: dois formatos com regra de escolha (`docs/padrao-ui.md` §8.2) — `_FieldHint` (visível, para restrição de preenchimento) e `_FieldHelp` (tooltip, para explicação secundária); ambos expõem o texto ao leitor de tela pelo `aria-describedby` do campo |
 | Sem framework JS / sem etapa de build | ✅ | JS vanilla (`forms.js`); libs versionadas em `wwwroot/lib` |
 
 ---

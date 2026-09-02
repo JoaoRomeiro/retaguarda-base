@@ -506,9 +506,22 @@ body {
     }
 }
 
-/* ---- Ícone de ajuda no rótulo do campo (partial _FieldHelp) --------------
+/* ---- Ícone de ajuda ao lado do rótulo do campo (partial _FieldHelp) ------
    O texto explicativo sai de baixo do campo e passa a viver num tooltip,
-   acionado por hover e por foco de teclado. Botão sem cara de botão. */
+   acionado por hover e por foco de teclado. Botão sem cara de botão.
+
+   O ícone fica FORA do <label> (ver o comentário do partial): sem o wrapper,
+   label e botão ficariam em linhas separadas, porque .form-label é block. */
+.form-label-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem; /* a margem que o .form-label perde abaixo */
+}
+
+.form-label-row .form-label {
+    margin-bottom: 0;
+}
+
 /* O [type="button"] no seletor não é enfeite: o reboot do Bootstrap usa
    `[type="button"]:not(:disabled) { cursor: pointer }`, que é mais específico que .field-help
    sozinho. Sem ele o cursor de ajuda não vale. */

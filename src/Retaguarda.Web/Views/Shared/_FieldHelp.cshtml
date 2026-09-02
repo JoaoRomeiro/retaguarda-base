@@ -1,19 +1,32 @@
-@model string
+@model Retaguarda.Web.Models.Shared.FieldHelp
 @*
-    Ícone de ajuda no fim do rótulo de um campo. O texto aparece em tooltip ao passar o mouse e
+    Ícone de ajuda ao lado do rótulo de um campo. O texto aparece em tooltip ao passar o mouse e
     também ao chegar pelo teclado (o Bootstrap dispara em hover E focus).
 
-    Uso:
-        <label asp-for="Campo" class="form-label">
-            <strong>@L["campo_label"]</strong>
-            <partial name="_FieldHelp" model="@L["campo_hint"].Value" />
-        </label>
+    Use para explicação de consequência ou semântica secundária. Restrição de preenchimento
+    (formato, tamanho, regra de senha) usa o _FieldHint, que fica visível. Ver `docs/padrao-ui.md` §8.2.
 
-    É <button type="button"> de propósito: dentro de um <label>, um elemento interativo não
-    repassa o clique para o campo, e o foco por teclado vem de graça. O texto vai em data-bs-title
-    (e não em title) para o navegador não mostrar também o tooltip nativo por cima do do Bootstrap.
+    Uso — o ícone fica FORA do <label>, dentro do wrapper .form-label-row:
+        <div class="form-label-row">
+            <label asp-for="Campo" class="form-label"><strong>@L["campo_label"]</strong></label>
+            <partial name="_FieldHelp" model='new FieldHelp("Campo", L["campo_hint"].Value)' />
+        </div>
+        <input asp-for="Campo" class="form-control" aria-describedby="Campo-help" />
+
+    Por que fora do <label>: o nome acessível do campo é montado a partir do conteúdo do label.
+    Com o ícone (e o texto) lá dentro, o leitor de tela anunciaria a ajuda inteira como parte do
+    rótulo, em toda navegação. Fora, o rótulo continua curto e a ajuda vira descrição.
+
+    É <button type="button"> de propósito: o foco por teclado vem de graça e o tooltip do Bootstrap
+    dispara nele. O texto vai em data-bs-title (e não em title) para o navegador não mostrar também
+    o tooltip nativo por cima do do Bootstrap.
+
+    O span visually-hidden existe porque o tooltip é conteúdo em hover: sem ele, quem usa leitor de
+    tela só ouviria o texto se tabulasse até o botão. Com o aria-describedby do campo apontando para
+    o span, o texto é anunciado ao focar o próprio campo.
 *@
-<button type="button" class="field-help" aria-label="@Model"
-        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="@Model">
+<button type="button" class="field-help" aria-label="@Model.Text"
+        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="@Model.Text">
     <i class="bi bi-question-circle" aria-hidden="true"></i>
 </button>
+<span id="@Model.DescriptionId" class="visually-hidden">@Model.Text</span>

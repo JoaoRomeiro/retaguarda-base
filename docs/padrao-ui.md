@@ -101,10 +101,53 @@ A lista aberta de um `<select>` nativo é desenhada pelo navegador/SO — **não
 - **Único ajuste disponível:** se um select específico precisar de outro limite, defina `data-label-max="N"` no elemento `<select>`.
 - **Não** depender de `RtSelect.applyTo(select)` em código novo (o observer já cobre); a API pública existe apenas como reforço pontual em fluxos JS legados.
 
+### 8.2. Texto de ajuda em campos de formulário (padrão obrigatório)
+
+Existem **dois** formatos, e a escolha entre eles **não é de gosto**: depende do que o texto diz.
+
+| Se o texto… | Formato | Partial |
+|---|---|---|
+| **é restrição que afeta o preenchimento** — formato, tamanho, máscara, regra de senha, intervalo aceito | **visível abaixo do campo** (`form-text`) | `_FieldHint` |
+| **explica consequência ou semântica secundária** — o que "inativo" causa, o que o fuso afeta, por que o campo é somente-leitura | **tooltip no ícone `?` ao lado do rótulo** | `_FieldHelp` |
+
+O ícone do `_FieldHelp` fica **fora do `<label>`**, dentro de um wrapper `.form-label-row`. Não é
+detalhe de layout: o nome acessível do campo é montado a partir do conteúdo do `<label>`, então um
+texto de ajuda lá dentro passaria a ser anunciado como parte do rótulo em toda navegação.
+
+**Por que não tooltip para tudo:** texto que o usuário precisa ler *antes* de digitar não pode
+depender de hover. Escondê-lo troca um erro evitado por um erro de validação depois do submit — e
+hover não existe em touch. O tooltip serve para o que é bom saber, não para o que é preciso saber.
+
+**Ambos usam o mesmo model** (`Models/Shared/FieldHelp.cs`), que deriva um id estável a partir do id
+do campo (`"Campo"` → `"Campo-help"`). **O campo deve referenciar esse id no `aria-describedby`** —
+é o que faz o leitor de tela anunciar a ajuda ao focar o campo, em vez de exigir que o usuário
+tabule até o ícone.
+
+```cshtml
+@* Restrição de preenchimento: visível *@
+<label asp-for="Password" class="form-label"><strong>@L["user_field_password"]</strong></label>
+<input asp-for="Password" class="form-control" type="password" aria-describedby="Password-help" />
+<partial name="_FieldHint" model='new FieldHelp("Password", L["user_field_password_hint"].Value)' />
+
+@* Explicação secundária: tooltip *@
+<div class="form-label-row">
+    <label asp-for="IsActive" class="form-label"><strong>@L["site_field_active"]</strong></label>
+    <partial name="_FieldHelp" model='new FieldHelp("IsActive", L["site_field_active_hint"].Value)' />
+</div>
+<select name="IsActive" id="IsActive" class="form-select" aria-describedby="IsActive-help"> ... </select>
+```
+
+- **Não** escrever `<span class="form-text">` solto em view nova — use o `_FieldHint`, senão o
+  `aria-describedby` fica de fora.
+- **Não** usar `title` nativo para ajuda de campo (não é acessível por teclado e some rápido demais).
+- O texto vive no `.resx` como qualquer string de UI, com a chave terminando em `_hint`.
+- O tooltip é inicializado globalmente por `wwwroot/js/site.js` — nada a fazer por tela.
+
 ## 9. Acessibilidade básica (mínimo)
 
 - **HTML semântico:** `<button>` (nunca `<div onclick>`), `<header>`, `<main>`, `<nav>`, `<h1>`–`<h6>` em ordem.
 - **`<label>` em todo campo** de formulário (ou `aria-label` quando não houver label visível).
+- **`aria-describedby` em todo campo com texto de ajuda** — visível ou em tooltip (§8.2). Sem isso a ajuda só existe para quem enxerga a tela.
 - **Contraste adequado — público-alvo exige rigor extra.** Decorre da regra de contraste do §6. Limiares concretos:
   - **Texto:** mínimo WCAG AA (4.5:1). Preferir AAA (7:1) quando possível.
   - **Bordas de componentes** (input, button, card, badge): mínimo WCAG 1.4.11 (3:1). Em dúvida entre 3:1 e 5:1, **escolher 5:1**.

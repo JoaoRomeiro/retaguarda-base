@@ -1,4 +1,4 @@
-@using Microsoft.AspNetCore.Mvc.Rendering
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
 @using Retaguarda.Business.Sites
 @model Retaguarda.Business.Sites.Dtos.UpdateSiteRequest
 @inject IStringLocalizer<SharedResources> L
@@ -41,23 +41,23 @@
                     <span asp-validation-for="Name" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
-                    <label asp-for="TimeZone" class="form-label">
-                        <strong>@L["site_field_timezone"]</strong>
-                        <partial name="_FieldHelp" model="@L["site_field_timezone_hint"].Value" />
-                    </label>
-                    <select asp-for="TimeZone" asp-items="timeZoneItems" class="form-select">
+                    <div class="form-label-row">
+                        <label asp-for="TimeZone" class="form-label"><strong>@L["site_field_timezone"]</strong></label>
+                        <partial name="_FieldHelp" model='new FieldHelp("TimeZone", L["site_field_timezone_hint"].Value)' />
+                    </div>
+                    <select asp-for="TimeZone" asp-items="timeZoneItems" class="form-select" aria-describedby="TimeZone-help">
                         <option value="">@L["site_timezone_select"]</option>
                     </select>
                     <span asp-validation-for="TimeZone" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
-                    <label asp-for="IsActive" class="form-label">
-                        <strong>@L["site_field_active"]</strong>
-                        <partial name="_FieldHelp" model="@L["site_field_active_hint"].Value" />
-                    </label>
+                    <div class="form-label-row">
+                        <label asp-for="IsActive" class="form-label"><strong>@L["site_field_active"]</strong></label>
+                        <partial name="_FieldHelp" model='new FieldHelp("IsActive", L["site_field_active_hint"].Value)' />
+                    </div>
                     @* name/id explícitos + selected condicional: binding de bool em select sem ambiguidade do asp-for.
                     *@
-                    <select name="IsActive" id="IsActive" class="form-select">
+                    <select name="IsActive" id="IsActive" class="form-select" aria-describedby="IsActive-help">
                         <option value="true" selected="@(Model.IsActive ? "selected" : null)">@L["active_yes"]</option>
                         <option value="false" selected="@(!Model.IsActive ? "selected" : null)">@L["active_no"]</option>
                     </select>

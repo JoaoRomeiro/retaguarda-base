@@ -1,0 +1,14 @@
+@model Retaguarda.Web.Models.Shared.FieldHelp
+@*
+    Texto de ajuda visível abaixo do campo.
+
+    Use para restrição que afeta o preenchimento (formato, tamanho, regra de senha, máscara): esse
+    texto precisa ser lido ANTES de digitar, então não pode ficar escondido atrás de hover.
+    Explicação de consequência ou semântica secundária usa o _FieldHelp (tooltip).
+    Ver `docs/padrao-ui.md` §8.2.
+
+    Uso:
+        <input asp-for="Campo" class="form-control" aria-describedby="Campo-help" />
+        <partial name="_FieldHint" model='new FieldHelp("Campo", L["campo_hint"].Value)' />
+*@
+<div id="@Model.DescriptionId" class="form-text">@Model.Text</div>

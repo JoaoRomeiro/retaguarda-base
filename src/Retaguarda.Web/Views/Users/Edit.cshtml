@@ -1,4 +1,4 @@
-@using Retaguarda.Web.Models.Users
+﻿@using Retaguarda.Web.Models.Users
 @model Retaguarda.Business.Users.Dtos.UpdateUserRequest
 @inject IStringLocalizer<SharedResources> L
 @{
@@ -31,10 +31,12 @@
                     <span asp-validation-for="FullName" class="text-danger small"></span>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label"><strong>@L["user_field_email"]</strong></label>
+                    <div class="form-label-row">
+                        <label for="Email" class="form-label"><strong>@L["user_field_email"]</strong></label>
+                        <partial name="_FieldHelp" model='new FieldHelp("Email", L["user_email_readonly_hint"].Value)' />
+                    </div>
                     @* E-mail (login) é imutável: exibido somente-leitura, não é enviado no POST. *@
-                    <input class="form-control" value="@email" readonly />
-                    <span class="form-text">@L["user_email_readonly_hint"]</span>
+                    <input id="Email" class="form-control" value="@email" readonly aria-describedby="Email-help" />
                 </div>
                 <div class="col-md-6">
                     <label asp-for="RoleName" class="form-label"><strong>@L["user_field_role"]</strong></label>
@@ -59,11 +61,11 @@
                     <span asp-validation-for="DefaultSiteId" class="text-danger small"></span>
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="IsActive" class="form-label">
-                        <strong>@L["user_field_active"]</strong>
-                        <partial name="_FieldHelp" model="@L["user_field_active_hint"].Value" />
-                    </label>
-                    <select name="IsActive" id="IsActive" class="form-select">
+                    <div class="form-label-row">
+                        <label asp-for="IsActive" class="form-label"><strong>@L["user_field_active"]</strong></label>
+                        <partial name="_FieldHelp" model='new FieldHelp("IsActive", L["user_field_active_hint"].Value)' />
+                    </div>
+                    <select name="IsActive" id="IsActive" class="form-select" aria-describedby="IsActive-help">
                         <option value="true" selected="@(Model.IsActive ? "selected" : null)">@L["active_yes"]</option>
                         <option value="false" selected="@(!Model.IsActive ? "selected" : null)">@L["active_no"]</option>
                     </select>

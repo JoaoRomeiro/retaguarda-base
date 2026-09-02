@@ -1,4 +1,4 @@
-@using Retaguarda.Web.Models.Users
+﻿@using Retaguarda.Web.Models.Users
 @model Retaguarda.Business.Users.Dtos.CreateUserRequest
 @inject IStringLocalizer<SharedResources> L
 @{
@@ -35,8 +35,9 @@
                 </div>
                 <div class="col-md-6">
                     <label asp-for="Password" class="form-label"><strong>@L["user_field_password"]</strong></label>
-                    <input asp-for="Password" class="form-control" type="password" autocomplete="new-password" />
-                    <span class="form-text">@L["user_field_password_hint"]</span>
+                    <input asp-for="Password" class="form-control" type="password" autocomplete="new-password"
+                           aria-describedby="Password-help" />
+                    <partial name="_FieldHint" model='new FieldHelp("Password", L["user_field_password_hint"].Value)' />
                     <span asp-validation-for="Password" class="text-danger small"></span>
                 </div>
                 <div class="col-md-6">
