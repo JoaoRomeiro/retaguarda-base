@@ -30,32 +30,48 @@
             </li>
         </ul>
 
-        @* Cadastros — visível só para Admin (configuração do tenant). *@
-        @if (User.IsInRole("Admin"))
+        @* Cadastros — cada item aparece pela permissão de listar do seu recurso; a seção some
+           quando a pessoa não pode listar nenhum deles. Esconder o que não se pode usar evita a
+           tela de acesso negado como forma de descobrir o que existe. *@
+        @{
+            var canListRoles = User.HasPermission(PlatformPermissions.Roles.View);
+            var canListUsers = User.HasPermission(PlatformPermissions.Users.View);
+            var canListSites = User.HasPermission(PlatformPermissions.Sites.View);
+        }
+        @if (canListRoles || canListUsers || canListSites)
         {
             var sitesActive = string.Equals(controller, "Sites", StringComparison.OrdinalIgnoreCase) ? "active" : null;
             var rolesActive = string.Equals(controller, "Roles", StringComparison.OrdinalIgnoreCase) ? "active" : null;
             var usersActive = string.Equals(controller, "Users", StringComparison.OrdinalIgnoreCase) ? "active" : null;
             <div class="sidebar-section">@L["nav_section_registrations"]</div>
             <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link @rolesActive" asp-controller="Roles" asp-action="Index" title="@L["nav_roles"]">
-                        <i class="bi bi-person-badge" aria-hidden="true"></i>
-                        <span>@L["nav_roles"]</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @usersActive" asp-controller="Users" asp-action="Index" title="@L["nav_users"]">
-                        <i class="bi bi-people" aria-hidden="true"></i>
-                        <span>@L["nav_users"]</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @sitesActive" asp-controller="Sites" asp-action="Index" title="@L["nav_sites"]">
-                        <i class="bi bi-buildings" aria-hidden="true"></i>
-                        <span>@L["nav_sites"]</span>
-                    </a>
-                </li>
+                @if (canListRoles)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @rolesActive" asp-controller="Roles" asp-action="Index" title="@L["nav_roles"]">
+                            <i class="bi bi-person-badge" aria-hidden="true"></i>
+                            <span>@L["nav_roles"]</span>
+                        </a>
+                    </li>
+                }
+                @if (canListUsers)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @usersActive" asp-controller="Users" asp-action="Index" title="@L["nav_users"]">
+                            <i class="bi bi-people" aria-hidden="true"></i>
+                            <span>@L["nav_users"]</span>
+                        </a>
+                    </li>
+                }
+                @if (canListSites)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @sitesActive" asp-controller="Sites" asp-action="Index" title="@L["nav_sites"]">
+                            <i class="bi bi-buildings" aria-hidden="true"></i>
+                            <span>@L["nav_sites"]</span>
+                        </a>
+                    </li>
+                }
             </ul>
         }
 

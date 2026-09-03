@@ -3,6 +3,12 @@
 @{
     ViewData["Title"] = L["roles_title"].Value;
     var roles = Model.Roles;
+
+    // Cada botão aparece pela permissão da ação que ele dispara.
+    var canCreate = User.HasPermission(PlatformPermissions.Roles.Create);
+    var canEdit = User.HasPermission(PlatformPermissions.Roles.Edit);
+    var canDelete = User.HasPermission(PlatformPermissions.Roles.Delete);
+    var hasRowActions = canEdit || canDelete;
 }
 
 <div class="page-header">
@@ -26,10 +32,13 @@
             <a asp-controller="Home" asp-action="Index" class="btn btn-sm btn-primary">
                 <i class="bi bi-arrow-left" aria-hidden="true"></i> @L["back"]
             </a>
-            <a asp-action="Create" asp-route-search="@Model.Search" asp-route-page="@roles.Page"
-               class="btn btn-sm btn-primary">
-                <i class="bi bi-plus-lg" aria-hidden="true"></i> @L["new"]
-            </a>
+            @if (canCreate)
+            {
+                <a asp-action="Create" asp-route-search="@Model.Search" asp-route-page="@roles.Page"
+                   class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> @L["new"]
+                </a>
+            }
         </div>
 
         <form asp-action="Index" method="get" class="mb-3" role="search">
@@ -61,7 +70,10 @@
                             <th>@L["role_field_name"]</th>
                             <th>@L["role_field_description"]</th>
                             <th>@L["role_field_type"]</th>
-                            <th class="text-end">@L["actions"]</th>
+                            @if (hasRowActions)
+                            {
+                                <th class="text-end">@L["actions"]</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -80,16 +92,22 @@
                                         <span class="badge text-bg-info">@L["role_type_custom"]</span>
                                     }
                                 </td>
-                                <td class="text-end">
-                                    <a asp-action="Edit" asp-route-id="@role.Id" asp-route-search="@Model.Search"
-                                       asp-route-page="@roles.Page" class="btn btn-sm btn-primary">@L["edit"]</a>
-                                    @* Papéis internos não podem ser excluídos: o botão nem aparece. *@
-                                    @if (!role.IsSystem)
-                                    {
-                                        <a asp-action="Delete" asp-route-id="@role.Id" asp-route-search="@Model.Search"
-                                           asp-route-page="@roles.Page" class="btn btn-sm btn-danger">@L["delete"]</a>
-                                    }
-                                </td>
+                                @if (hasRowActions)
+                                {
+                                    <td class="text-end">
+                                        @if (canEdit)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@role.Id" asp-route-search="@Model.Search"
+                                               asp-route-page="@roles.Page" class="btn btn-sm btn-primary">@L["edit"]</a>
+                                        }
+                                        @* Papéis internos não podem ser excluídos: o botão nem aparece. *@
+                                        @if (canDelete && !role.IsSystem)
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@role.Id" asp-route-search="@Model.Search"
+                                               asp-route-page="@roles.Page" class="btn btn-sm btn-danger">@L["delete"]</a>
+                                        }
+                                    </td>
+                                }
                             </tr>
                         }
                     </tbody>

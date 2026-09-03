@@ -75,7 +75,12 @@ Referência: `src/Retaguarda.Business/Sites/*`, `src/Retaguarda.Shared/Models/Pa
 ## 4. Web (camada `Web`)
 
 ### Controller
-- `[Authorize(Roles = "…")]` na classe (ex.: `Site` é `Admin`; defina o papel por cadastro).
+- **Autorização por permissão, não por papel.** `[Authorize]` na classe (só exige autenticado) e
+  `[Authorize(Policy = MinhasPermissions.Recurso.Acao)]` **em cada action** — sempre pela constante,
+  nunca string solta. As permissões do cadastro novo vêm de um `IPermissionProvider` do projeto
+  (`PlatformPermissions` é o da base e não se edita). `ControllerPermissionConventionTests` quebra o
+  build se alguma action ficar sem política; controller que não é cadastro entra na lista de isentos
+  do próprio teste, com motivo.
 - Actions: `Index(search, page)`, `Create` (GET/POST), `Edit(id, …)` (GET/POST), `Delete(id, …)` (GET) + `DeleteConfirmed` (POST, `[ActionName("Delete")]`).
 - **Todos os POST** têm `[ValidateAntiForgeryToken]`.
 - **Propagação do estado da listagem:** todas as actions recebem e devolvem `search` + `page`; os redirects voltam para `Index` com eles (`RedirectToAction(nameof(Index), new { search, page })`). Nas GET de Create/Edit/Delete, guarde via `SetListState` em `ViewData["ListSearch"]`/`ViewData["ListPage"]`.
@@ -133,7 +138,9 @@ Sem `style=""` inline (`padrao-ui.md` §3). Só classes Bootstrap 5 + tokens do 
 **Delete (confirmação):**
 - `<form>` envolve o card; `id`/`search`/`page` ocultos. Mensagem no `.card-body`; botões `Excluir` (`btn-danger`) + `Cancelar` no `.card-footer`.
 
-**Menu lateral (`_Sidebar`):** adicionar o item na seção apropriada, **gated pelo papel** (`@if (User.IsInRole("…"))`).
+**Menu lateral (`_Sidebar`):** adicionar o item na seção apropriada, **gated pela permissão de listar**
+(`@if (User.HasPermission(MinhasPermissions.Recurso.View))`). Mesma regra para botão e ação de linha:
+cada um aparece pela permissão da ação que dispara, e a coluna "Ações" some quando não sobra nenhuma.
 
 Componentes de tema relevantes (em `theme.css`): `.card` (remapeado para tokens, borda suave + sombra em 2 camadas, respiro interno), `.card-accent` (linha azul no topo), `.card-footer` (fundo `#00000008`, barra de ações), `.table { --bs-table-bg: var(--color-surface) }` (fundo branco) + `table-striped` (zebra com cores padrão do Bootstrap) + células `white-space: nowrap`, `.cell-truncate` (truncamento por largura com reticências), `thead th` em negrito (igual aos labels), `.form-control`/`.form-select`/`.form-check-input` com fundo branco, `.page-header`. Tema refinado com inspiração no AdminLTE (paleta/sombras/densidade); fonte base **14px** — ver `docs/padrao-ui.md` §5/§6.
 
@@ -155,9 +162,10 @@ Partial de formulário-no-card). Não propague duplicação: o 2º uso é o gati
 - [ ] Entidade + migration; soft delete e índice único filtrado (se houver campo único) configurados.
 - [ ] Repositório (interface no `Data`) com busca (`ILike` + `SearchPattern`, validada contra o Postgres real) + paginação + checagem de unicidade.
 - [ ] DTOs + validadores (mensagens como chaves) + serviço (valida e lança `ValidationException`, usa Mapster, retorna `PagedResult<T>`).
-- [ ] Controller `[Authorize(Roles=…)]`, antiforgery nos POST, propagação de `search`/`page`, tradução de validação para `ModelState` localizado.
+- [ ] Permissões do recurso declaradas em um `IPermissionProvider`, com rótulo no `.resx`.
+- [ ] Controller `[Authorize]` na classe + `[Authorize(Policy = …)]` em toda action, antiforgery nos POST, propagação de `search`/`page`, tradução de validação para `ModelState` localizado.
 - [ ] Views no padrão do §6 (card, grid, selects, paginação no footer, estado da listagem, loading), sem `style=""` inline; selects obrigatórios `int` usam placeholder `value="0"` + mensagem localizada via validator.
-- [ ] Item no `_Sidebar` gated por papel.
+- [ ] Item no `_Sidebar` gated pela permissão de listar; botões e ações de linha gated pela permissão de cada um.
 - [ ] Todas as strings em `.resx` (nada hardcoded); termos de domínio no glossário (§2 do orientacao).
 - [ ] Testes (serviço com repositório fake; lógica pura quando aplicável).
 - [ ] A partir do 2º CRUD: componentes repetidos extraídos (§7).
@@ -185,8 +193,9 @@ para não se repetir o estudo a cada cadastro de segurança.
   sem tabela nova; ganha `Description`, `IsSystem`, auditoria e soft delete.
 - **Persistência:** create/update via `RoleManager` (mantém `NormalizedName`/`ConcurrencyStamp`);
   listagem/consulta/soft delete via `DbContext`. Delete = `Remove` (interceptor → soft delete).
-- **Papéis internos (`IsSystem`):** nome **imutável** e **exclusão proibida** (o código e
-  `[Authorize(Roles=...)]` dependem dos nomes). Só a descrição é editável.
+- **Papéis internos (`IsSystem`):** nome **imutável**, **exclusão proibida** e **permissões
+  somente-leitura** (o seeder reconcilia as do `Admin` a cada boot; aceitar o POST deixaria dar um
+  submit com a lista vazia e trancar o administrador para fora). Só a descrição é editável.
 - **Delete com motivo:** serviço retorna um **enum** (`RoleDeletionResult`) em vez de `bool`,
   para a Web exibir a mensagem certa (interno / com usuários vinculados).
 

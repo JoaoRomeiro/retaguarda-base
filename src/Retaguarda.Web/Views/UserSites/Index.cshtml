@@ -5,6 +5,10 @@
     var sites = Model.Sites;
     var userSearch = ViewData["UserSearch"] as string;
     var userPage = ViewData["UserPage"];
+
+    // Cada botão aparece pela permissão da ação que ele dispara.
+    var canCreate = User.HasPermission(PlatformPermissions.UserSites.Create);
+    var canDelete = User.HasPermission(PlatformPermissions.UserSites.Delete);
 }
 
 <div class="page-header">
@@ -29,11 +33,14 @@
                class="btn btn-sm btn-primary">
                 <i class="bi bi-arrow-left" aria-hidden="true"></i> @L["back"]
             </a>
-            <a asp-action="Create" asp-route-userId="@Model.UserId" asp-route-userSearch="@userSearch"
-               asp-route-userPage="@userPage" asp-route-search="@Model.Search" asp-route-page="@sites.Page"
-               class="btn btn-sm btn-primary">
-                <i class="bi bi-plus-lg" aria-hidden="true"></i> @L["new"]
-            </a>
+            @if (canCreate)
+            {
+                <a asp-action="Create" asp-route-userId="@Model.UserId" asp-route-userSearch="@userSearch"
+                   asp-route-userPage="@userPage" asp-route-search="@Model.Search" asp-route-page="@sites.Page"
+                   class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> @L["new"]
+                </a>
+            }
         </div>
 
         <form asp-action="Index" method="get" class="mb-3" role="search">
@@ -68,7 +75,10 @@
                         <tr>
                             <th>@L["site_field_code"]</th>
                             <th>@L["site_field_name"]</th>
-                            <th class="text-end">@L["actions"]</th>
+                            @if (canDelete)
+                            {
+                                <th class="text-end">@L["actions"]</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -83,16 +93,19 @@
                                         <span class="badge text-bg-secondary ms-1">@L["usersite_badge_default"]</span>
                                     }
                                 </td>
-                                <td class="text-end">
-                                    @* A planta padrão não pode ser removida: o botão nem aparece. *@
-                                    @if (!site.IsDefault)
-                                    {
-                                        <a asp-action="Delete" asp-route-userId="@Model.UserId" asp-route-siteId="@site.SiteId"
-                                           asp-route-userSearch="@userSearch" asp-route-userPage="@userPage"
-                                           asp-route-search="@Model.Search" asp-route-page="@sites.Page"
-                                           class="btn btn-sm btn-danger">@L["usersite_remove"]</a>
-                                    }
-                                </td>
+                                @if (canDelete)
+                                {
+                                    <td class="text-end">
+                                        @* A planta padrão não pode ser removida: o botão nem aparece. *@
+                                        @if (!site.IsDefault)
+                                        {
+                                            <a asp-action="Delete" asp-route-userId="@Model.UserId" asp-route-siteId="@site.SiteId"
+                                               asp-route-userSearch="@userSearch" asp-route-userPage="@userPage"
+                                               asp-route-search="@Model.Search" asp-route-page="@sites.Page"
+                                               class="btn btn-sm btn-danger">@L["usersite_remove"]</a>
+                                        }
+                                    </td>
+                                }
                             </tr>
                         }
                     </tbody>

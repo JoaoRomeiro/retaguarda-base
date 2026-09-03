@@ -3,6 +3,14 @@
 @{
     ViewData["Title"] = L["sites_title"].Value;
     var sites = Model.Sites;
+
+    // Cada botão aparece pela permissão da ação que ele dispara. A coluna de ações some quando
+    // não sobra nenhuma — tabela com coluna vazia parece defeito.
+    var canCreate = User.HasPermission(PlatformPermissions.Sites.Create);
+    var canEdit = User.HasPermission(PlatformPermissions.Sites.Edit);
+    var canDelete = User.HasPermission(PlatformPermissions.Sites.Delete);
+    var canExport = User.HasPermission(PlatformPermissions.Sites.Export);
+    var hasRowActions = canEdit || canDelete;
 }
 
 <div class="page-header">
@@ -22,6 +30,8 @@
                 <i class="bi bi-arrow-left" aria-hidden="true"></i> @L["back"]
             </a>
             @* Exportação: mesma busca da tela; o download não navega a página. *@
+            @if (canExport)
+            {
             <div class="btn-group">
                 <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"
                         aria-expanded="false" @(sites.Items.Count == 0 ? "disabled" : null)>
@@ -38,10 +48,14 @@
                     </li>
                 </ul>
             </div>
-            <a asp-action="Create" asp-route-search="@Model.Search" asp-route-page="@sites.Page"
-               class="btn btn-sm btn-primary">
-                <i class="bi bi-plus-lg" aria-hidden="true"></i> @L["new"]
-            </a>
+            }
+            @if (canCreate)
+            {
+                <a asp-action="Create" asp-route-search="@Model.Search" asp-route-page="@sites.Page"
+                   class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> @L["new"]
+                </a>
+            }
         </div>
 
         <form asp-action="Index" method="get" class="mb-3" role="search">
@@ -73,7 +87,10 @@
                             <th>@L["site_field_code"]</th>
                             <th>@L["site_field_name"]</th>
                             <th>@L["site_field_active"]</th>
-                            <th class="text-end">@L["actions"]</th>
+                            @if (hasRowActions)
+                            {
+                                <th class="text-end">@L["actions"]</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -92,12 +109,21 @@
                                         <span class="badge text-bg-secondary">@L["active_no"]</span>
                                     }
                                 </td>
-                                <td class="text-end">
-                                    <a asp-action="Edit" asp-route-id="@site.Id" asp-route-search="@Model.Search"
-                                       asp-route-page="@sites.Page" class="btn btn-sm btn-primary">@L["edit"]</a>
-                                    <a asp-action="Delete" asp-route-id="@site.Id" asp-route-search="@Model.Search"
-                                       asp-route-page="@sites.Page" class="btn btn-sm btn-danger">@L["delete"]</a>
-                                </td>
+                                @if (hasRowActions)
+                                {
+                                    <td class="text-end">
+                                        @if (canEdit)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@site.Id" asp-route-search="@Model.Search"
+                                               asp-route-page="@sites.Page" class="btn btn-sm btn-primary">@L["edit"]</a>
+                                        }
+                                        @if (canDelete)
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@site.Id" asp-route-search="@Model.Search"
+                                               asp-route-page="@sites.Page" class="btn btn-sm btn-danger">@L["delete"]</a>
+                                        }
+                                    </td>
+                                }
                             </tr>
                         }
                     </tbody>

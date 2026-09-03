@@ -8,15 +8,17 @@ using Retaguarda.Business.Exporting;
 using Retaguarda.Business.Sites;
 using Retaguarda.Business.Sites.Dtos;
 using Retaguarda.Shared;
+using Retaguarda.Shared.Authorization;
 using Retaguarda.Web.Infrastructure;
 using Retaguarda.Web.Models.Sites;
 
 namespace Retaguarda.Web.Controllers;
 
-// Cadastro de plantas (Site). Restrito a Admin — configuração de infraestrutura do tenant.
+// Cadastro de plantas (Site). Cada ação exige a permissão do seu próprio verbo — o atributo da
+// classe só garante que há alguém autenticado.
 // O estado da listagem (busca + página) é propagado por todo o fluxo para que o usuário
 // volte sempre ao mesmo ponto após criar/editar/excluir/cancelar.
-[Authorize(Roles = RetaguardaRoles.Admin)]
+[Authorize]
 public sealed class SitesController : Controller
 {
     private const int PageSize = 10;
@@ -49,6 +51,7 @@ public sealed class SitesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Sites.View)]
     public async Task<IActionResult> Index(string? search, int page = 1, CancellationToken cancellationToken = default)
     {
         var result = await _siteService.ListAsync(search, page, PageSize, cancellationToken);
@@ -59,6 +62,7 @@ public sealed class SitesController : Controller
     // de exportação: monte uma ExportTable com cabeçalhos localizados e células já formatadas, e
     // deixe o exportador cuidar do formato.
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Sites.Export)]
     public async Task<IActionResult> Export(
         string? format, string? search, CancellationToken cancellationToken = default)
     {
@@ -90,6 +94,7 @@ public sealed class SitesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Sites.Create)]
     public IActionResult Create(string? search, int page = 1)
     {
         SetListState(search, page);
@@ -97,6 +102,7 @@ public sealed class SitesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.Sites.Create)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
         CreateSiteRequest request, string? search, int page = 1, CancellationToken cancellationToken = default)
@@ -117,6 +123,7 @@ public sealed class SitesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Sites.Edit)]
     public async Task<IActionResult> Edit(int id, string? search, int page = 1, CancellationToken cancellationToken = default)
     {
         var site = await _siteService.GetByIdAsync(id, cancellationToken);
@@ -137,6 +144,7 @@ public sealed class SitesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.Sites.Edit)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
         UpdateSiteRequest request, string? search, int page = 1, CancellationToken cancellationToken = default)
@@ -163,6 +171,7 @@ public sealed class SitesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Sites.Delete)]
     public async Task<IActionResult> Delete(int id, string? search, int page = 1, CancellationToken cancellationToken = default)
     {
         var site = await _siteService.GetByIdAsync(id, cancellationToken);
@@ -176,6 +185,7 @@ public sealed class SitesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.Sites.Delete)]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(

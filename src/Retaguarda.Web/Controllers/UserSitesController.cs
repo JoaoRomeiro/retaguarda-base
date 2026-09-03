@@ -6,14 +6,16 @@ using Retaguarda.Business.Sites;
 using Retaguarda.Business.Users;
 using Retaguarda.Business.Users.Dtos;
 using Retaguarda.Shared;
+using Retaguarda.Shared.Authorization;
 using Retaguarda.Web.Models.Users;
 
 namespace Retaguarda.Web.Controllers;
 
-// Sub-CRUD das plantas associadas a um usuário (R/C/D). Restrito a Admin.
+// Sub-CRUD das plantas associadas a um usuário (R/C/D). Recurso próprio no catálogo de permissões
+// (usersites), porque "só consultar em quais plantas alguém está" é um caso real.
 // Carrega dois contextos de estado: o do index de Usuários (userSearch/userPage), usado pelo
 // botão Voltar, e o próprio (search/page) da listagem de associação.
-[Authorize(Roles = RetaguardaRoles.Admin)]
+[Authorize]
 public sealed class UserSitesController : Controller
 {
     private const int PageSize = 10;
@@ -36,6 +38,7 @@ public sealed class UserSitesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.UserSites.View)]
     public async Task<IActionResult> Index(
         string userId, string? userSearch, int userPage = 1, string? search = null, int page = 1,
         CancellationToken cancellationToken = default)
@@ -59,6 +62,7 @@ public sealed class UserSitesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.UserSites.Create)]
     public async Task<IActionResult> Create(
         string userId, string? userSearch, int userPage = 1, string? search = null, int page = 1,
         CancellationToken cancellationToken = default)
@@ -76,6 +80,7 @@ public sealed class UserSitesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.UserSites.Create)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
         AssociateSiteRequest request, string? userSearch, int userPage = 1, string? search = null, int page = 1,
@@ -100,6 +105,7 @@ public sealed class UserSitesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.UserSites.Delete)]
     public async Task<IActionResult> Delete(
         string userId, int siteId, string? userSearch, int userPage = 1, string? search = null, int page = 1,
         CancellationToken cancellationToken = default)
@@ -135,6 +141,7 @@ public sealed class UserSitesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.UserSites.Delete)]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(

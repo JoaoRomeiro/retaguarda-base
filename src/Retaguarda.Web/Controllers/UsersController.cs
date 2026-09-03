@@ -7,14 +7,16 @@ using Retaguarda.Business.Sites;
 using Retaguarda.Business.Users;
 using Retaguarda.Business.Users.Dtos;
 using Retaguarda.Shared;
+using Retaguarda.Shared.Authorization;
 using Retaguarda.Shared.Contracts;
 using Retaguarda.Web.Models.Users;
 
 namespace Retaguarda.Web.Controllers;
 
-// Cadastro de usuários (User). Restrito a Admin. Um usuário tem uma Role e 1..N plantas,
-// com uma planta padrão. O estado da listagem (busca + página) é propagado por todo o fluxo.
-[Authorize(Roles = RetaguardaRoles.Admin)]
+// Cadastro de usuários (User). Cada ação exige a permissão do seu próprio verbo. Um usuário tem
+// uma Role e 1..N plantas, com uma planta padrão. O estado da listagem (busca + página) é
+// propagado por todo o fluxo.
+[Authorize]
 public sealed class UsersController : Controller
 {
     private const int PageSize = 10;
@@ -41,6 +43,7 @@ public sealed class UsersController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Users.View)]
     public async Task<IActionResult> Index(string? search, int page = 1, CancellationToken cancellationToken = default)
     {
         var result = await _userService.ListAsync(search, page, PageSize, cancellationToken);
@@ -49,6 +52,7 @@ public sealed class UsersController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Users.Create)]
     public async Task<IActionResult> Create(string? search, int page = 1, CancellationToken cancellationToken = default)
     {
         SetListState(search, page);
@@ -57,6 +61,7 @@ public sealed class UsersController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.Users.Create)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
         CreateUserRequest request, string? search, int page = 1, CancellationToken cancellationToken = default)
@@ -78,6 +83,7 @@ public sealed class UsersController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Users.Edit)]
     public async Task<IActionResult> Edit(string id, string? search, int page = 1, CancellationToken cancellationToken = default)
     {
         var user = await _userService.GetByIdAsync(id, cancellationToken);
@@ -100,6 +106,7 @@ public sealed class UsersController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.Users.Edit)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
         UpdateUserRequest request, string? search, int page = 1, CancellationToken cancellationToken = default)
@@ -153,6 +160,7 @@ public sealed class UsersController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Users.Delete)]
     public async Task<IActionResult> Delete(string id, string? search, int page = 1, CancellationToken cancellationToken = default)
     {
         var user = await _userService.GetByIdAsync(id, cancellationToken);
@@ -173,6 +181,7 @@ public sealed class UsersController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.Users.Delete)]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(

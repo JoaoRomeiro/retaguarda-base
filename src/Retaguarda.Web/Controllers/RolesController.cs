@@ -10,10 +10,11 @@ using Retaguarda.Web.Models.Roles;
 
 namespace Retaguarda.Web.Controllers;
 
-// Cadastro de acessos (Role). Restrito a Admin — configuração de segurança do tenant.
+// Cadastro de acessos (Role). Cada ação exige a permissão do seu próprio verbo — quem edita
+// acessos decide quem pode o quê, então é o cadastro mais sensível da base.
 // O estado da listagem (busca + página) é propagado por todo o fluxo para que o usuário
 // volte sempre ao mesmo ponto após criar/editar/excluir/cancelar.
-[Authorize(Roles = RetaguardaRoles.Admin)]
+[Authorize]
 public sealed class RolesController : Controller
 {
     private const int PageSize = 10;
@@ -33,6 +34,7 @@ public sealed class RolesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Roles.View)]
     public async Task<IActionResult> Index(string? search, int page = 1, CancellationToken cancellationToken = default)
     {
         var result = await _roleService.ListAsync(search, page, PageSize, cancellationToken);
@@ -40,6 +42,7 @@ public sealed class RolesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Roles.Create)]
     public IActionResult Create(string? search, int page = 1)
     {
         SetListState(search, page);
@@ -48,6 +51,7 @@ public sealed class RolesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.Roles.Create)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
         CreateRoleRequest request, string? search, int page = 1, CancellationToken cancellationToken = default)
@@ -69,6 +73,7 @@ public sealed class RolesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Roles.Edit)]
     public async Task<IActionResult> Edit(string id, string? search, int page = 1, CancellationToken cancellationToken = default)
     {
         var role = await _roleService.GetByIdAsync(id, cancellationToken);
@@ -91,6 +96,7 @@ public sealed class RolesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.Roles.Edit)]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
         UpdateRoleRequest request, string? search, int page = 1, CancellationToken cancellationToken = default)
@@ -120,6 +126,7 @@ public sealed class RolesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = PlatformPermissions.Roles.Delete)]
     public async Task<IActionResult> Delete(string id, string? search, int page = 1, CancellationToken cancellationToken = default)
     {
         var role = await _roleService.GetByIdAsync(id, cancellationToken);
@@ -140,6 +147,7 @@ public sealed class RolesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = PlatformPermissions.Roles.Delete)]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(
